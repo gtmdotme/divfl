@@ -1,0 +1,10 @@
+# custom - start
+.DS_Store
+dump
+.ipynb_checkpoints/
+# custom - end
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class%

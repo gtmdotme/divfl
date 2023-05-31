@@ -19,43 +19,43 @@ class Model(object):
         # create computation graph
         self.graph = tf.Graph()
         with self.graph.as_default():
-            tf.set_random_seed(123 + seed)
+            tf.compat.v1.set_random_seed(123 + seed)
             self.features, self.labels, self.train_op, self.grads, self.eval_metric_ops, \
                 self.loss = self.create_model(optimizer)
-            self.saver = tf.train.Saver()
+            self.saver = tf.compat.v1.train.Saver()
 
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
-        self.sess = tf.Session(graph=self.graph, config=config)
+        self.sess = tf.compat.v1.Session(graph=self.graph, config=config)
 
         # find memory footprint and compute cost of the model
         self.size = graph_size(self.graph)
         with self.graph.as_default():
-            self.sess.run(tf.global_variables_initializer())
-            metadata = tf.RunMetadata()
-            opts = tf.profiler.ProfileOptionBuilder.float_operation()
-            self.flops = tf.profiler.profile(self.graph, run_meta=metadata, cmd='scope', options=opts).total_float_ops
+            self.sess.run(tf.compat.v1.global_variables_initializer())
+            metadata = tf.compat.v1.RunMetadata()
+            opts = tf.compat.v1.profiler.ProfileOptionBuilder.float_operation()
+            self.flops = tf.compat.v1.profiler.profile(self.graph, run_meta=metadata, cmd='scope', options=opts).total_float_ops
 
     def create_model(self, optimizer):
-        input_ph = tf.placeholder(tf.float32, shape=(None, IMAGE_SIZE, IMAGE_SIZE, 3))
+        input_ph = tf.compat.v1.placeholder(tf.float32, shape=(None, IMAGE_SIZE, IMAGE_SIZE, 3))
         out = input_ph
         for _ in range(4):
-            out = tf.layers.conv2d(out, 32, 3, padding='same')
-            out = tf.layers.batch_normalization(out, training=True)
-            out = tf.layers.max_pooling2d(out, 2, 2, padding='same')
+            out = tf.compat.v1.layers.conv2d(out, 32, 3, padding='same')
+            out = tf.compat.v1.layers.batch_normalization(out, training=True)
+            out = tf.compat.v1.layers.max_pooling2d(out, 2, 2, padding='same')
             out = tf.nn.relu(out)
         out = tf.reshape(out, (-1, int(np.prod(out.get_shape()[1:]))))
-        logits = tf.layers.dense(out, self.num_classes)
-        label_ph = tf.placeholder(tf.int64, shape=(None,))
-        loss = tf.losses.sparse_softmax_cross_entropy(labels=label_ph, logits=logits)
+        logits = tf.compat.v1.layers.dense(out, self.num_classes)
+        label_ph = tf.compat.v1.placeholder(tf.int64, shape=(None,))
+        loss = tf.compat.v1.losses.sparse_softmax_cross_entropy(labels=label_ph, logits=logits)
         predictions = {
             "classes": tf.argmax(input=logits, axis=1),
             "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
         }
         grads_and_vars = optimizer.compute_gradients(loss)
         grads, _ = zip(*grads_and_vars)
-        train_op = optimizer.apply_gradients(grads_and_vars, global_step=tf.train.get_global_step())
-        eval_metric_ops = tf.count_nonzero(tf.equal(label_ph, tf.argmax(input=logits, axis=1)))
+        train_op = optimizer.apply_gradients(grads_and_vars, global_step=tf.compat.v1.train.get_global_step())
+        eval_metric_ops = tf.math.count_nonzero(tf.equal(label_ph, tf.argmax(input=logits, axis=1)))
 
         return input_ph, label_ph, train_op, grads, eval_metric_ops, loss
 
@@ -64,13 +64,13 @@ class Model(object):
     def set_params(self, model_params=None):
         if model_params is not None:
             with self.graph.as_default():
-                all_vars = tf.trainable_variables()
+                all_vars = tf.compat.v1.trainable_variables()
                 for variable, value in zip(all_vars, model_params):
                     variable.load(value, self.sess)
 
     def get_params(self):
         with self.graph.as_default():
-            model_params = self.sess.run(tf.trainable_variables())
+            model_params = self.sess.run(tf.compat.v1.trainable_variables())
         return model_params
 
     def get_gradients(self, data, model_len):

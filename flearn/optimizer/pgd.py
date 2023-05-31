@@ -58,7 +58,7 @@ class PerturbedGradientDescent(optimizer.Optimizer):
 
     def set_params(self, cog, client):
         with client.graph.as_default():
-            all_vars = tf.trainable_variables()
+            all_vars = tf.compat.v1.trainable_variables()
             for variable, value in zip(all_vars, cog):
                 vstar = self.get_slot(variable, "vstar")
                 vstar.load(value, client.sess)

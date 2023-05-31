@@ -12,7 +12,7 @@ from sklearn.metrics import pairwise_distances
 class Server(BaseFedarated):
     def __init__(self, params, learner, dataset):
         print('Using Federated avg to Train')
-        self.inner_opt = tf.train.GradientDescentOptimizer(params['learning_rate'])
+        self.inner_opt = tf.compat.v1.train.GradientDescentOptimizer(params['learning_rate'])
         super(Server, self).__init__(params, learner, dataset)
         self.rng = np.random.default_rng()
 

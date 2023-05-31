@@ -28,7 +28,7 @@ do
             for m in 1 10 # use any value other than 1 to run partial gradient setting
             do
                 echo $L_aux
-                python3  -u main.py --dataset=$dataset --optimizer='fedavg'  \
+                python -u main.py --dataset=$dataset --optimizer='fedavg'  \
                 --learning_rate=0.1 --num_rounds=800 --Ls0=$L_aux \
                 --eval_every=1 --batch_size=10 \
                 --num_epochs=$epoch \

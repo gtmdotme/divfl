@@ -14,7 +14,7 @@ class BaseFedarated(object):
         for key, val in params.items(): setattr(self, key, val);
 
         # create worker nodes
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
         self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
         self.clients = self.setup_clients(dataset, self.client_model)
         print('{} Clients in Total'.format(len(self.clients)))
