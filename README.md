@@ -1,5 +1,17 @@
 # Diverse Client Selection for Federated Learning via Submodular Maximization
 
+## Getting started
+Create a conda environment as follows:
+```bash
+$ conda create -n divfl python=3.9 ipython ipykernel
+$ source activate divfl
+$ python -m ipykernel install --user --name divfl --display-name "Python (divfl)"
+$ conda install -c anaconda pandas numpy scikit-learn scipy h5py networkx xgboost seaborn tqdm requests tabulate -y
+$ conda install -c anaconda pillow
+$ conda install -c conda-forge loguru jupyterlab -y
+$ pip install tensorflow
+```
+
 ## Code for ICLR 2022 paper:
 
 <b>Title</b>: <i>Diverse Client Selection for Federated Learning via Submodular Maximization</i> <a href="https://openreview.net/pdf?id=nwKXyFvaUm">[pdf]</a> <a href="https://iclr.cc/virtual/2022/poster/7047">[presentation]</a>\

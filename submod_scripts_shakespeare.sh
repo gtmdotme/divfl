@@ -37,7 +37,8 @@ do
                 --drop_percent=0 \
                 --clients_per_round=$num_clients \
                 --sim_metric='grad' --m_interval=$m \
-                --clientsel_algo='submodular' | tee results/$dataset/uneq_psubmod_numclients$num_clients"epochs"$epoch"updateevery"$m"TESTONLY"
+                --clientsel_algo='submodular' 
+                # | tee results/$dataset/uneq_psubmod_numclients$num_clients"epochs"$epoch"updateevery"$m"TESTONLY"
                 #--clientsel_algo='lossbased' | tee results/$dataset/uneq_PoC_numclients$num_clients"epochs"$epoch"T1"
                 #--clientsel_algo='lossbased' | tee results/$dataset/uneq11_simpleavg_PoC_numclients$num_clients"epochs"$epoch"T1"    
             done

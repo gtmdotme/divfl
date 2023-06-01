@@ -2,7 +2,10 @@
 
 #datasets='synthetic_1_1 synthetic_iid synthetic_0_0 synthetic_0.5_0.5 nist celeba'
 
-datasets='celeba'
+# datasets='celeba'
+# clmodel='cnn'
+
+datasets='nist'
 clmodel='cnn'
 
 for dataset in $datasets
@@ -29,14 +32,15 @@ do
             do
                 echo $L_aux
                 python -u main.py --dataset=$dataset --optimizer='fedavg'  \
-                --learning_rate=0.1 --num_rounds=800 --Ls0=$L_aux \
+                --learning_rate=0.1 --num_rounds=8 --Ls0=$L_aux \
                 --eval_every=1 --batch_size=10 \
                 --num_epochs=$epoch \
                 --model=$clmodel \
                 --drop_percent=0 \
                 --clients_per_round=$num_clients \
                 --sim_metric='grad' --m_interval=$m \
-                --clientsel_algo='submodular' | tee results/$dataset/uneq_submod_numclients$num_clients"epochs"$epoch"updateevery"$m"ICLR_stochgreedy_newpartition"
+                --clientsel_algo='submodular' 
+                # | tee results/$dataset/uneq_submod_numclients$num_clients"epochs"$epoch"updateevery"$m"ICLR_stochgreedy_newpartition"
                 #--clientsel_algo='lossbased' | tee results/$dataset/uneq_PoC_numclients$num_clients"epochs"$epoch"T1"
                 #--clientsel_algo='lossbased' | tee results/$dataset/uneq11_simpleavg_PoC_numclients$num_clients"epochs"$epoch"T1"    
             done

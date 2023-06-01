@@ -6,7 +6,8 @@ import os
 import sys
 import tensorflow as tf
 
-from tensorflow.contrib import rnn
+# from tensorflow.contrib import rnn
+import tensorflow.compat.v1.nn.rnn_cell as rnn
 
 utils_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 utils_dir = os.path.join(utils_dir, 'utils')

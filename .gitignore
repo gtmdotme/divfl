@@ -2,6 +2,17 @@
 .DS_Store
 dump
 .ipynb_checkpoints/
+
+data/sent140/data/train
+data/sent140/data/test
+
+data/shakespeare/data/train
+data/shakespeare/data/test
+
+data/nist/data/train
+data/nist/data/test
+
+data/mnist/data
 # custom - end
 
 # Byte-compiled / optimized / DLL files

@@ -3,7 +3,8 @@ import numpy as np
 import tensorflow as tf
 from tqdm import trange
 
-from tensorflow.contrib import rnn
+# from tensorflow.contrib import rnn
+import tensorflow.compat.v1.nn.rnn_cell as rnn
 
 from flearn.utils.model_utils import batch_data, batch_data_multiple_iters
 from flearn.utils.language_utils import line_to_indices

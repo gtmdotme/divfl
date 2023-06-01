@@ -152,10 +152,10 @@ class Server(BaseFedarated):
         tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
 
         if self.clientsel_algo == 'submodular':
-            np.save('./results/sent140/psubmod_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
-            np.save('./results/sent140/psubmod_client_diff_grad_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), diff_grad)
+            np.save(f'./results/{self.dataset}/psubmod_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
+            np.save(f'./results/{self.dataset}/psubmod_client_diff_grad_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), diff_grad)
         elif self.clientsel_algo == 'lossbased':
-            np.save('./results/sent140/powerofchoice_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
+            np.save(f'./results/{self.dataset}/powerofchoice_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
 
         print('Number of samples', stats_train[2])
 
