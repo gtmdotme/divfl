@@ -12,6 +12,8 @@ $ conda install -c conda-forge loguru jupyterlab -y
 $ pip install tensorflow
 ```
 
+You can replace the `data` directory by downloading from [here](https://purdue0-my.sharepoint.com/:u:/g/personal/gchoudha_purdue_edu/ESL4_QIds8JLk36JqVXKNKkBGey4fWQGPaqESJjRYujs-w?e=JmJcnS) which contains all the processed data (except for CelebA).
+
 ## Code for ICLR 2022 paper:
 
 <b>Title</b>: <i>Diverse Client Selection for Federated Learning via Submodular Maximization</i> <a href="https://openreview.net/pdf?id=nwKXyFvaUm">[pdf]</a> <a href="https://iclr.cc/virtual/2022/poster/7047">[presentation]</a>\
