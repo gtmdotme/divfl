@@ -1,18 +1,57 @@
 # Diverse Client Selection for Federated Learning via Submodular Maximization
 
-## Getting started
-Create a conda environment as follows:
+## Getting Started Guide
+* **Python 3.10**
+* **CUDA: 11.8**
+* **CuDNN: 8.6.0**
+* **PyTorch 2.0.1**
+* **TensorFlow 2.12.0**
+* **PyTorch Geometric 2.3.0**
+
+Step 1: Log into Scholar Cluster and load modules
+* `$ ssh username@gpu.scholar.rcac.purdue.edu`
+* `$ module purge`
+* `$ module load cuda/11.8.0`
+* `$ module load cudnn`
+* `$ module load anaconda/2020.11-py38`
+
+Step 2: Create or activate conda environment
+* `$ conda create -n myenv python=3.10 ipython ipykernel -y`
+* `$ conda activate myenv`
+* `$ python -m ipykernel install --user --name myenv --display-name "Python (myenv)"`
+
+Step 3.2: Install **TensorFlow 2.12.0**
+* May refer: https://www.tensorflow.org/install/pip#linux
+* For Ubuntu:
 ```bash
-$ conda create -n divfl python=3.9 ipython ipykernel
-$ source activate divfl
-$ python -m ipykernel install --user --name divfl --display-name "Python (divfl)"
-$ conda install -c anaconda pandas numpy scikit-learn scipy h5py networkx xgboost seaborn tqdm requests tabulate -y
-$ conda install -c anaconda pillow
-$ conda install -c conda-forge loguru jupyterlab -y
-$ pip install tensorflow
+$ conda install -c conda-forge cudatoolkit=11.8.0 -y
+$ python -m pip install nvidia-cudnn-cu11==8.6.0.163 tensorflow==2.12.*
+$ mkdir -p $CONDA_PREFIX/etc/conda/activate.d
+$ echo 'CUDNN_PATH=$(dirname $(python -c "import nvidia.cudnn;print(nvidia.cudnn.__file__)"))' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+$ echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/:$CUDNN_PATH/lib' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+$ source $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+```
+* For Mac: `$ pip install tensorflow` (may install 2.13.0rc1)
+* Verify Install:
+```bash
+$ python -c "import tensorflow as tf; print(f'TensorFlow: {tf.__version__}\nCUDA devices: {tf.config.list_physical_devices(\"GPU\")}')"
 ```
 
+Step 3.4: Install common packages
+* $ ML Toolkits: `$ conda install -c anaconda pandas numpy scikit-learn scipy h5py networkx xgboost seaborn tqdm tabulate pillow -y`
+* $ Misc: `conda install -c conda-forge loguru jupyterlab -y`
+* Verify install:
+```bash
+$ python -c "import pandas, numpy, requests, networkx, seaborn, tqdm, matplotlib, sklearn, loguru; print ('Done')"
+```
+
+## Data Directory
 You can replace the `data` directory by downloading from [here](https://purdue0-my.sharepoint.com/:u:/g/personal/gchoudha_purdue_edu/ESL4_QIds8JLk36JqVXKNKkBGey4fWQGPaqESJjRYujs-w?e=JmJcnS) which contains all the processed data (except for CelebA).
+
+
+-----
+# Old Readme
+
 
 ## Code for ICLR 2022 paper:
 
