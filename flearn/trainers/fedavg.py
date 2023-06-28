@@ -58,8 +58,8 @@ class Server(BaseFedarated):
             if self.clientsel_algo == 'submodular':
                 #if i % self.m_interval == 0: # Moved the condition inside the function
                 if i == 0 or self.clients_per_round == 1:  # at the first iteration or when m=1, collect gradients from all clients
-                    self.all_grads = np.asarray(self.show_grads()[:-1])
-                    self.norm_diff = pairwise_distances(self.all_grads, metric="euclidean")
+                    self.all_grads = np.asarray(self.show_grads()[:-1])  # get all gradients from clients (last one contains weightage avg)
+                    self.norm_diff = pairwise_distances(self.all_grads, metric="euclidean") # compute pairwise distance between gradients
                     np.fill_diagonal(self.norm_diff, 0)
                 indices, selected_clients, all_grad = self.select_cl_submod(i, num_clients=self.clients_per_round, stochastic_greedy = False)
                 active_clients = selected_clients # Dropping clients don't apply in this case
@@ -159,8 +159,8 @@ class Server(BaseFedarated):
 
         print('Number of samples', stats_train[2])
 
-        # save_dir = "./results/"
-        # result_path = os.path.join(save_dir,'submodular.csv')
-        # print('Writing Statistics to file')
-        # with open(result_path, 'wb') as f:
-        #     np.savetxt(f, np.c_[test_accuracies, train_accuracies, train_losses, num_sampled], delimiter=",")
+        save_dir = f"./results/{self.dataset}"
+        result_path = os.path.join(save_dir,'submodular.csv')
+        print('Writing Statistics to file')
+        with open(result_path, 'wb') as f:
+            np.savetxt(f, np.c_[test_accuracies, train_accuracies, train_losses, num_sampled], delimiter=",")

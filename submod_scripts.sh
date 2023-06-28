@@ -24,15 +24,15 @@ do
     fi
     L_aux=1
     #for L_aux in "${L_auxs[@]}"
-    for num_clients in 10 20
+    for num_clients in 10 #20
     do
         for epoch in 1 #20
         do
-            for m in 1 10 # use any value other than 1 to run partial gradient setting
+            for m in 5 #10 # use any value other than 1 to run partial gradient setting
             do
                 echo $L_aux
                 python -u main.py --dataset=$dataset --optimizer='fedavg'  \
-                --learning_rate=0.1 --num_rounds=8 --Ls0=$L_aux \
+                --learning_rate=0.1 --num_rounds=200 --Ls0=$L_aux \
                 --eval_every=1 --batch_size=10 \
                 --num_epochs=$epoch \
                 --model=$clmodel \

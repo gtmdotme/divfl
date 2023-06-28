@@ -2,6 +2,8 @@
 .DS_Store
 dump
 .ipynb_checkpoints/
+results
+.vscode
 
 data/sent140/data/train
 data/sent140/data/test

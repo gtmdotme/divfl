@@ -4,9 +4,7 @@
 * **Python 3.10**
 * **CUDA: 11.8**
 * **CuDNN: 8.6.0**
-* **PyTorch 2.0.1**
 * **TensorFlow 2.12.0**
-* **PyTorch Geometric 2.3.0**
 
 Step 1: Log into Scholar Cluster and load modules
 * `$ ssh username@gpu.scholar.rcac.purdue.edu`
