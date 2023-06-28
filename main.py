@@ -3,6 +3,7 @@ import argparse
 import importlib
 import random
 import os
+import sklearn # load sklearn before TF, else error on scholar cluster
 import tensorflow as tf
 from flearn.utils.model_utils import read_data
 
