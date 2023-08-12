@@ -1,8 +1,7 @@
 import json
 import numpy as np
-import tensorflow as tf
 from tqdm import trange
-
+import tensorflow as tf
 # from tensorflow.contrib import rnn
 import tensorflow.compat.v1.nn.rnn_cell as rnn
 
@@ -122,15 +121,15 @@ class Model(object):
 
         return processed_samples, grads
     
-    def solve_inner(self, data, num_epochs=1, batch_size=32):
-        '''
+    def train_for_epochs(self, data, num_epochs=1, batch_size=32):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
         Return:
             comp: number of FLOPs computed while training given data
             update: list of np.ndarray weights, with each weight array
         corresponding to a variable in the resulting graph
-        '''
+        """
         
         for _ in trange(num_epochs, desc='Epoch: ', leave=False):
             for X,y in batch_data(data, batch_size):
@@ -139,27 +138,27 @@ class Model(object):
                 with self.graph.as_default():
                     self.sess.run(self.train_op,
                         feed_dict={self.features: input_data, self.labels: target_data})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = num_epochs * (len(data['y'])//batch_size) * batch_size * self.flops
-        return soln, comp
+        return model_params, comp
 
-    def solve_iters(self, data, num_iters=1, batch_size=32):
-        '''Solves local optimization problem'''
+    def train_for_iters(self, data, num_iters=1, batch_size=32):
+        """Solves local optimization problem"""
 
         for X, y in batch_data_multiple_iters(data, batch_size, num_iters):
             input_data = process_x(X, self.seq_len)
             target_data = process_y(y)
             with self.graph.as_default():
                 self.sess.run(self.train_op, feed_dict={self.features: input_data, self.labels: target_data})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = 0
-        return soln, comp
+        return model_params, comp
     
-    def test(self, data):
-        '''
+    def evaluate(self, data):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
-        '''
+        """
         x_vecs = process_x(data['x'], self.seq_len)
         labels = process_y(data['y'])
         with self.graph.as_default():

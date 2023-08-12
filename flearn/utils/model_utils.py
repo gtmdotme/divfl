@@ -1,15 +1,34 @@
+import os
 import json
 import numpy as np
-import os
-
 # import Image
 from PIL import Image
 
+
+def load_image(img_name):
+    IMAGE_SIZE = 84
+
+    IMAGES_DIR = os.path.join('data', 'celeba', 'data', 'raw', 'img_align_celeba')
+    img = Image.open(os.path.join(IMAGES_DIR, img_name))
+    img = img.resize((IMAGE_SIZE, IMAGE_SIZE)).convert('RGB')
+    return np.array(img)
+
+
+def process_x(raw_x_batch):
+    x_batch = [load_image(i) for i in raw_x_batch]
+    x_batch = np.array(x_batch)
+    return x_batch
+
+
+def process_y(raw_y_batch):
+    return raw_y_batch
+
+
 def batch_data(data, batch_size):
-    '''
-    data is a dict := {'x': [numpy array], 'y': [numpy array]} (on one client)
+    """
+    data: dict := {'x': [numpy array], 'y': [numpy array]} (on one client)
     returns x, y, which are both numpy array of length: batch_size
-    '''
+    """
     data_x = data['x']
     data_y = data['y']
 
@@ -21,27 +40,12 @@ def batch_data(data, batch_size):
     np.random.shuffle(data_y)
 
     # loop through mini-batches
+    # TODO: discard last batch if its size < batch_size
     for i in range(0, len(data_x), batch_size):
         batched_x = data_x[i:i+batch_size]
         batched_y = data_y[i:i+batch_size]
         yield (batched_x, batched_y)
 
-
-def process_x(raw_x_batch):
-    x_batch = [load_image(i) for i in raw_x_batch]
-    x_batch = np.array(x_batch)
-    return x_batch
-
-def process_y(raw_y_batch):
-    return raw_y_batch
-
-def load_image(img_name):
-    IMAGE_SIZE = 84
-
-    IMAGES_DIR = os.path.join('data', 'celeba', 'data', 'raw', 'img_align_celeba')
-    img = Image.open(os.path.join(IMAGES_DIR, img_name))
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE)).convert('RGB')
-    return np.array(img)
 
 def batch_data_celeba(data, batch_size):
 
@@ -89,8 +93,10 @@ def batch_data_multiple_iters(data, batch_size, num_iters):
         idx += batch_size
         yield (batched_x, batched_y)
 
+
 def read_data(train_data_dir, test_data_dir):
-    '''parses data in given train and test data directories
+    """ 
+    parses data in given train and test data directories
 
     assumes:
     - the data in the input directories are .json files with 
@@ -102,7 +108,7 @@ def read_data(train_data_dir, test_data_dir):
         groups: list of group ids; empty list if none found
         train_data: dictionary of train data
         test_data: dictionary of test data
-    '''
+    """
     clients = []
     groups = []
     train_data = {}
@@ -133,9 +139,9 @@ def read_data(train_data_dir, test_data_dir):
 
 
 class Metrics(object):
-    def __init__(self, clients, params):
-        self.params = params
-        num_rounds = params['num_rounds']
+    def __init__(self, clients, hyper_params):
+        self.hyper_params = hyper_params
+        num_rounds = hyper_params['num_rounds']
         self.bytes_written = {c.id: [0] * num_rounds for c in clients}
         self.client_computations = {c.id: [0] * num_rounds for c in clients}
         self.bytes_read = {c.id: [0] * num_rounds for c in clients}      
@@ -150,21 +156,25 @@ class Metrics(object):
 
     def write(self):
         metrics = {}
-        metrics['dataset'] = self.params['dataset']
-        metrics['num_rounds'] = self.params['num_rounds']
-        metrics['eval_every'] = self.params['eval_every']
-        metrics['learning_rate'] = self.params['learning_rate']
-        metrics['mu'] = self.params['mu']
-        metrics['num_epochs'] = self.params['num_epochs']
-        metrics['batch_size'] = self.params['batch_size']
+        metrics['dataset'] = self.hyper_params['dataset']
+        metrics['num_rounds'] = self.hyper_params['num_rounds']
+        metrics['eval_every'] = self.hyper_params['eval_every']
+        metrics['learning_rate'] = self.hyper_params['learning_rate']
+        metrics['mu'] = self.hyper_params['mu']
+        metrics['num_epochs'] = self.hyper_params['num_epochs']
+        metrics['batch_size'] = self.hyper_params['batch_size']
         metrics['accuracies'] = self.accuracies
         metrics['train_accuracies'] = self.train_accuracies
         metrics['client_computations'] = self.client_computations
         metrics['bytes_written'] = self.bytes_written
         metrics['bytes_read'] = self.bytes_read
-        metrics_dir = os.path.join('out', self.params['dataset'], 'metrics_{}_{}_{}_{}_{}.json'.format(self.params['seed'], self.params['optimizer'], self.params['learning_rate'], self.params['num_epochs'], self.params['mu']))
-	#os.mkdir(os.path.join('out', self.params['dataset']))
-        if not os.path.exists(os.path.join('out', self.params['dataset'])):
-            os.mkdir(os.path.join('out', self.params['dataset']))
+        metrics_dir = os.path.join('out', self.hyper_params['dataset'], 'metrics_{}_{}_{}_{}_{}.json'.format(self.hyper_params['seed'], 
+                                                                                                       self.hyper_params['trainer'], 
+                                                                                                       self.hyper_params['learning_rate'], 
+                                                                                                       self.hyper_params['num_epochs'], 
+                                                                                                       self.hyper_params['mu']))
+	#os.mkdir(os.path.join('out', self.hyper_params['dataset']))
+        if not os.path.exists(os.path.join('out', self.hyper_params['dataset'])):
+            os.mkdir(os.path.join('out', self.hyper_params['dataset']))
         with open(metrics_dir, 'w') as ouf:
             json.dump(metrics, ouf)

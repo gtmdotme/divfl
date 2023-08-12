@@ -1,7 +1,7 @@
-'''
+"""
 each row of created .csv file is of the form:
 polarity, id, date, query, user, comment, test_or_training
-'''
+"""
 
 import csv
 import os

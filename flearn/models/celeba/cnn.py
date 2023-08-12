@@ -1,7 +1,7 @@
 import os
 import numpy as np
-import tensorflow as tf
 from tqdm import trange
+import tensorflow as tf
 
 
 from flearn.utils.tf_utils import graph_size, process_grad
@@ -59,8 +59,6 @@ class Model(object):
 
         return input_ph, label_ph, train_op, grads, eval_metric_ops, loss
 
-
-
     def set_params(self, model_params=None):
         if model_params is not None:
             with self.graph.as_default():
@@ -82,9 +80,8 @@ class Model(object):
 
         return num_samples, grads
 
-
-    def solve_inner(self, data, num_epochs=1, batch_size=32):
-        '''Solves local optimization problem'''
+    def train_for_epochs(self, data, num_epochs=1, batch_size=32):
+        """ Solves local optimization problem """
 
         with self.graph.as_default():
             _, grads = self.get_gradients(data, 610) # Ignore the hardcoding, it's not used anywhere
@@ -94,9 +91,9 @@ class Model(object):
                 with self.graph.as_default():
                     self.sess.run(self.train_op,
                         feed_dict={self.features: X, self.labels: y})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = num_epochs * (len(data['y'])//batch_size) * batch_size * self.flops
-        return soln, comp, grads
+        return model_params, comp, grads
 
     def solve_sgd(self, mini_batch_data):
         with self.graph.as_default():
@@ -106,11 +103,11 @@ class Model(object):
         weights = self.get_params()
         return grads, loss, weights
 
-    def test(self, data):
-        '''
+    def evaluate(self, data):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
-        '''
+        """
         with self.graph.as_default():
             tot_correct, loss = self.sess.run([self.eval_metric_ops, self.loss],
                                               feed_dict={self.features: process_x(data['x']),

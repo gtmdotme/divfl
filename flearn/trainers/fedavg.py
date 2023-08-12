@@ -1,23 +1,25 @@
-import numpy as np
-from tqdm import trange, tqdm
-import tensorflow as tf
 import os
+from tqdm import trange, tqdm
+from loguru import logger
+
+import numpy as np
+from sklearn.metrics import pairwise_distances
+import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 
 from .fedbase import BaseFedarated
 from flearn.utils.tf_utils import process_grad
-from sklearn.metrics import pairwise_distances
 
 
 class Server(BaseFedarated):
-    def __init__(self, params, learner, dataset):
+    def __init__(self, hyper_params, Model, dataset):
         print('Using Federated avg to Train')
-        self.inner_opt = tf.compat.v1.train.GradientDescentOptimizer(params['learning_rate'])
-        super(Server, self).__init__(params, learner, dataset)
+        self.inner_opt = tf.compat.v1.train.GradientDescentOptimizer(hyper_params['learning_rate'])
+        super(Server, self).__init__(hyper_params, Model, dataset)
         self.rng = np.random.default_rng()
 
     def train(self):
-        '''Train using Federated Proximal'''
+        """Train using Federated Proximal"""
         print('Training with {} workers ---'.format(self.clients_per_round))
 
         test_accuracies = []
@@ -30,15 +32,16 @@ class Server(BaseFedarated):
         client_sets_all = np.zeros([self.num_rounds, self.clients_per_round], dtype=int)
         diff_grad = np.zeros([self.num_rounds, len(self.clients)])
         for i in range(self.num_rounds):
-            
+            # get all client's model weights
             allcl_models = []
-            for cc in self.clients:
-                clmodel = cc.get_params()
+            for c in self.clients:
+                clmodel = c.get_params()
                 allcl_models.append(clmodel)
-            # test model
+            
+            # compute metrics on test data
             if i % self.eval_every == 0:
-                stats = self.test()  # have set the latest model for all clients
-                stats_train = self.train_error_and_loss()
+                stats = self.test_metrics()  # have set the latest model for all clients
+                stats_train = self.train_metrics()
                 
                 test_accuracies.append(np.sum(stats[3]) * 1.0 / np.sum(stats[2]))
                 acc_10quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1))
@@ -47,13 +50,13 @@ class Server(BaseFedarated):
                 train_accuracies.append(np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2]))
                 train_losses.append(np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2]))
 
-                tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
-                tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))  # testing accuracy
-                tqdm.write('At round {} acc. 10th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))  # testing accuracy variance
-                tqdm.write('At round {} acc. 20th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))  # testing accuracy variance
-                tqdm.write('At round {} acc. variance: {}'.format(i, np.var([i/j for i,j in zip(stats[3], stats[2])])))  # testing accuracy variance
-                tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
-                tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2])))
+                print('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
+                print('At round {} accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))  # testing accuracy
+                print('At round {} acc. 10th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))  # testing accuracy variance
+                print('At round {} acc. 20th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))  # testing accuracy variance
+                print('At round {} acc. variance: {}'.format(i, np.var([i/j for i,j in zip(stats[3], stats[2])])))  # testing accuracy variance
+                print('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+                print('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2])))
 
             if self.clientsel_algo == 'submodular':
                 #if i % self.m_interval == 0: # Moved the condition inside the function
@@ -100,7 +103,7 @@ class Server(BaseFedarated):
             
             print('Client set is ', indices)
             client_sets_all[i] = indices
-            tqdm.write('At round {} num. clients sampled: {}'.format(i, len(indices)))
+            print('At round {} num. clients sampled: {}'.format(i, len(indices)))
             num_sampled.append(len(indices))
             csolns = []  # buffer for receiving client solutions
             
@@ -111,7 +114,7 @@ class Server(BaseFedarated):
                 c.set_params(self.latest_model)
 
                 # solve minimization locally
-                soln, stats, grads = c.solve_inner(num_epochs=self.num_epochs, batch_size=self.batch_size)
+                soln, stats, grads = c.train_for_epochs(num_epochs=self.num_epochs, batch_size=self.batch_size)
                 #print("Shape of grads", np.shape(grads))
                 
                 # gather solutions from client
@@ -140,16 +143,16 @@ class Server(BaseFedarated):
                 
 
         # final test model
-        stats = self.test()
-        stats_train = self.train_error_and_loss()
+        stats = self.test_metrics()
+        stats_train = self.train_metrics()
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
-        tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
-        tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        tqdm.write('At round {} acc. variance: {}'.format(self.num_rounds, np.var([i/j for i,j in zip(stats[3], stats[2])])))
-        tqdm.write('At round {} acc. 10th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))
-        tqdm.write('At round {} acc. 20th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))
-        tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        print('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
+        print('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
+        print('At round {} acc. variance: {}'.format(self.num_rounds, np.var([i/j for i,j in zip(stats[3], stats[2])])))
+        print('At round {} acc. 10th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))
+        print('At round {} acc. 20th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))
+        print('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
 
         if self.clientsel_algo == 'submodular':
             np.save(f'./results/{self.dataset}/psubmod_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
@@ -160,7 +163,7 @@ class Server(BaseFedarated):
         print('Number of samples', stats_train[2])
 
         save_dir = f"./results/{self.dataset}"
-        result_path = os.path.join(save_dir,'submodular.csv')
-        print('Writing Statistics to file')
+        result_path = os.path.join(save_dir, f'{self.clientsel_algo}.csv')
+        print(f'Writing Statistics to file: {result_path}')
         with open(result_path, 'wb') as f:
             np.savetxt(f, np.c_[test_accuracies, train_accuracies, train_losses, num_sampled], delimiter=",")

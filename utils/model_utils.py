@@ -11,10 +11,10 @@ sys.path.append(models_dir)
 from client import Client
 
 def batch_data(data, batch_size):
-    '''
+    """
     data is a dict := {'x': [list], 'y': [list]}
     returns x, y, which are both lists of size-batch_size lists
-    '''
+    """
     raw_x = data['x']
     raw_y = data['y']        
     batched_x = []
@@ -25,7 +25,7 @@ def batch_data(data, batch_size):
     return batched_x, batched_y
 
 def read_data(train_data_dir, test_data_dir):
-    '''parses data in given train and test data directories
+    """ parses data in given train and test data directories
 
     assumes:
     - the data in the input directories are .json files with 
@@ -37,7 +37,7 @@ def read_data(train_data_dir, test_data_dir):
         groups: list of group ids; empty list if none found
         train_data: dictionary of train data
         test_data: dictionary of test data
-    '''
+    """
     clients = []
     groups = []
     train_data = {}
@@ -67,11 +67,11 @@ def read_data(train_data_dir, test_data_dir):
     return clients, groups, train_data, test_data
 
 def setup_clients(train_data_dir, test_data_dir, model=None):
-    '''instantiates clients based on given train and test data directories
+    """ instantiates clients based on given train and test data directories
 
     Return:
         list of Clients
-    '''
+    """
     users, groups, train_data, test_data = read_data(train_data_dir, test_data_dir)
     if len(groups) == 0:
         groups = [None for _ in users]

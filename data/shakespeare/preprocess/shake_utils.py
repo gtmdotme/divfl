@@ -1,6 +1,6 @@
-'''
+"""
 helper functions for preprocessing shakespeare data
-'''
+"""
 
 import json
 import os
@@ -22,12 +22,12 @@ def __txt_to_data(txt_dir, seq_length=80):
     return dataX, dataY
 
 def parse_data_in(data_dir, users_and_plays_path, raw=False):
-    '''
+    """
     returns dictionary with keys: users, num_samples, user_data
     raw := bool representing whether to include raw text in all_data
     if raw is True, then user_data key
     removes users with no data
-    '''
+    """
     with open(users_and_plays_path, 'r') as inf:
         users_and_plays = json.load(inf)
     files = os.listdir(data_dir)

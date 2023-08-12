@@ -1,81 +1,100 @@
 import numpy as np
-import copy
 
 class Client(object):
-    
-    def __init__(self, id, group=None, train_data={'x':[],'y':[]}, eval_data={'x':[],'y':[]}, model=None):
-        self.model = model
+    """
+    Abstraction of client device that holds their personal data
+    - has its own local data
+    - has its own local copy of model
+    - mostly interfaces with model class for:
+        - getting/setting model parameters
+        - getting gradients
+        - doing local training/testing
+    """
+    def __init__(self, id, group=None, train_data={'x':[],'y':[]}, test_data={'x':[],'y':[]}, model=None):
+        # params
         self.id = id # integer
         self.group = group
+
+        # data
         self.train_data = {k: np.array(v) for k, v in train_data.items()}
-        self.eval_data = {k: np.array(v) for k, v in eval_data.items()}
-        self.num_samples = len(self.train_data['y'])
-        self.test_samples = len(self.eval_data['y'])
+        self.test_data = {k: np.array(v) for k, v in test_data.items()}
+        self.num_train_samples = len(self.train_data['y'])
+        self.num_test_samples = len(self.test_data['y'])
+
+        # model
+        self.model = model
         self.updatevec = np.append(model.get_params()[0].flatten(), model.get_params()[1])
 
     def set_params(self, model_params):
-        '''set model parameters'''
+        """ set model parameters """
         self.model.set_params(model_params)
 
     def get_params(self):
-        '''get model parameters'''
+        """ get model parameters """
         return self.model.get_params()
 
     def get_grads(self, model_len):
-        '''get model gradient'''
+        """ get model gradient """
         return self.model.get_gradients(self.train_data, model_len)
 
     def solve_grad(self):
-        '''get model gradient with cost'''
+        """ get model gradient with cost """
         bytes_w = self.model.size
         grads = self.model.get_gradients(self.train_data)
-        comp = self.model.flops * self.num_samples
+        comp = self.model.flops * self.num_train_samples
         bytes_r = self.model.size
-        return ((self.num_samples, grads), (bytes_w, comp, bytes_r))
+        return ((self.num_train_samples, grads), (bytes_w, comp, bytes_r))
 
-    def solve_inner(self, num_epochs=1, batch_size=10):
-        '''Solves local optimization problem
+    def train_for_epochs(self, num_epochs=1, batch_size=10):
+        """ local training based on epochs
         
         Return:
-            1: num_samples: number of samples used in training
-            1: soln: local optimization solution
+            1: num_train_samples: number of samples used in training
+            1: model_params: local optimization solution
             2: bytes read: number of bytes received
             2: comp: number of FLOPs executed in training process
             2: bytes_write: number of bytes transmitted
-        '''
+        """
 
         bytes_w = self.model.size
-        soln, comp, grads = self.model.solve_inner(self.train_data, num_epochs, batch_size)
+        model_params, comp, grads = self.model.train_for_epochs(self.train_data, num_epochs, batch_size)
         bytes_r = self.model.size
-        return (self.num_samples, soln), (bytes_w, comp, bytes_r), grads
+        return (self.num_train_samples, model_params), (bytes_w, comp, bytes_r), grads
 
-    def solve_iters(self, num_iters=1, batch_size=10):
-        '''Solves local optimization problem
+    def train_for_iters(self, num_iters=1, batch_size=10):
+        """ local training based on iterations
 
         Return:
-            1: num_samples: number of samples used in training
-            1: soln: local optimization solution
+            1: num_train_samples: number of samples used in training
+            1: model_params: local optimization solution
             2: bytes read: number of bytes received
             2: comp: number of FLOPs executed in training process
             2: bytes_write: number of bytes transmitted
-        '''
+        """
 
         bytes_w = self.model.size
-        soln, comp = self.model.solve_iters(self.train_data, num_iters, batch_size)
+        model_params, comp = self.model.train_for_iters(self.train_data, num_iters, batch_size)
         bytes_r = self.model.size
-        return (self.num_samples, soln), (bytes_w, comp, bytes_r)
+        return (self.num_train_samples, model_params), (bytes_w, comp, bytes_r)
 
-    def train_error_and_loss(self):
-        tot_correct, loss = self.model.test(self.train_data)
-        return tot_correct, loss, self.num_samples
+    def train_metrics(self):
+        """ evaluates current model on local train_data
+        
+        Return:
+            tot_correct: total #correct predictions
+            loss: int: loss function value
+            num_train_samples: int: number of training samples
+        """
+        tot_correct, loss = self.model.evaluate(self.train_data)
+        return tot_correct, loss, self.num_train_samples
 
 
-    def test(self):
-        '''tests current model on local eval_data
+    def test_metrics(self):
+        """ evaluates current model on local test_data
 
         Return:
             tot_correct: total #correct predictions
-            test_samples: int
-        '''
-        tot_correct, loss = self.model.test(self.eval_data)
-        return tot_correct, self.test_samples
+            num_test_samples: int
+        """
+        tot_correct, loss = self.model.evaluate(self.test_data)
+        return tot_correct, self.num_test_samples

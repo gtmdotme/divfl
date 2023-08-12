@@ -4,21 +4,21 @@ import operator
 import tensorflow as tf
 
 def __num_elems(shape):
-    '''Returns the number of elements in the given shape
+    """ Returns the number of elements in the given shape
 
     Args:
         shape: TensorShape
     
     Return:
         tot_elems: int
-    '''
+    """
     tot_elems = 1
     for s in shape:
         tot_elems *= int(s)
     return tot_elems
 
 def graph_size(graph):
-    '''Returns the size of the given graph in bytes
+    """ Returns the size of the given graph in bytes
 
     The size of the graph is calculated by summing up the sizes of each
     trainable variable. The sizes of variables are calculated by multiplying
@@ -29,7 +29,7 @@ def graph_size(graph):
         graph: TF graph
     Return:
         integer representing size of graph (in bytes)
-    '''
+    """
     tot_size = 0
     with graph.as_default():
         vs = tf.compat.v1.trainable_variables()
@@ -41,12 +41,12 @@ def graph_size(graph):
     return tot_size
 
 def process_sparse_grad(grads):
-    '''
+    """
     Args:
         grads: grad returned by LSTM model (only for the shakespaere dataset)
     Return:
         a flattened grad in numpy (1-D array)
-    '''
+    """
 
     indices = grads[0].indices
     values =  grads[0].values
@@ -71,12 +71,12 @@ def flatten2list(object):
     return gather
 
 def process_grad(grads):
-    '''
+    """
     Args:
         grads: grad 
     Return:
         a flattened grad in numpy (1-D array)
-    '''
+    """
 
     # print('grads.shape', grads[0], grads[1], grads[-1])
     # client_grads = grads[0]
@@ -95,8 +95,8 @@ def process_grad(grads):
     return client_grads
 
 def cosine_sim(a, b):
-    '''Returns the cosine similarity between two arrays a and b
-    '''  
+    """Returns the cosine similarity between two arrays a and b
+    """  
     dot_product = np.dot(a, b)
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)

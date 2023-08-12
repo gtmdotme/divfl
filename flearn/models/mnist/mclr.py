@@ -1,6 +1,6 @@
 import numpy as np
-import tensorflow as tf
 from tqdm import trange
+import tensorflow as tf
 
 from flearn.utils.model_utils import batch_data, batch_data_multiple_iters
 from flearn.utils.tf_utils import graph_size
@@ -8,9 +8,9 @@ from flearn.utils.tf_utils import process_grad
 
 
 class Model(object):
-    '''
+    """
     Assumes that images are 28px by 28px
-    '''
+    """
     
     def __init__(self, num_classes, optimizer, seed=1):
 
@@ -63,7 +63,6 @@ class Model(object):
         return model_params
 
     def get_gradients(self, data, model_len):
-
         grads = np.zeros(model_len)
         num_samples = len(data['y'])
 
@@ -74,32 +73,32 @@ class Model(object):
 
         return num_samples, grads
     
-    def solve_inner(self, data, num_epochs=1, batch_size=32):
-        '''Solves local optimization problem'''
+    def train_for_epochs(self, data, num_epochs=1, batch_size=32):
+        """Solves local optimization problem"""
         for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
             for X, y in batch_data(data, batch_size):
                 with self.graph.as_default():
                     self.sess.run(self.train_op,
                         feed_dict={self.features: X, self.labels: y})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = num_epochs * (len(data['y'])//batch_size) * batch_size * self.flops
-        return soln, comp
+        return model_params, comp
 
-    def solve_iters(self, data, num_iters=1, batch_size=32):
-        '''Solves local optimization problem'''
+    def train_for_iters(self, data, num_iters=1, batch_size=32):
+        """ Solves local optimization problem """
 
         for X, y in batch_data_multiple_iters(data, batch_size, num_iters):
             with self.graph.as_default():
                 self.sess.run(self.train_op, feed_dict={self.features: X, self.labels: y})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = 0
-        return soln, comp
+        return model_params, comp
     
-    def test(self, data):
-        '''
+    def evaluate(self, data):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
-        '''
+        """
         with self.graph.as_default():
             tot_correct, loss = self.sess.run([self.eval_metric_ops, self.loss], 
                 feed_dict={self.features: data['x'], self.labels: data['y']})

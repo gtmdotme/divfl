@@ -1,6 +1,6 @@
-'''
+"""
 splits data into train and test sets
-'''
+"""
 
 import argparse
 import json
@@ -9,7 +9,7 @@ import random
 import sys
 
 def create_jsons_for(user_files, which_set, max_users, include_hierarchy):
-    '''used in split-by-user case'''
+    """ used in split-by-user case """
     user_count = 0
     json_index = 0
     users = []

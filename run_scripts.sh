@@ -13,7 +13,7 @@ do
             for mu in 0 #1
             do
                 echo $dataset $num_clients $epoch
-                python -u main.py --dataset=$dataset --optimizer='fedprox'  \
+                python -u main.py --dataset=$dataset --trainer='fedprox'  \
                 --learning_rate=0.1 --num_rounds=800 --clients_per_round=$num_clients \
                 --eval_every=1 --batch_size=10 \
                 --num_epochs=$epoch \

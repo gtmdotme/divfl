@@ -1,27 +1,27 @@
 import numpy as np
-import tensorflow as tf
 from tqdm import tqdm
+from sklearn.metrics import pairwise_distances
+import tensorflow as tf
 
 from flearn.models.client import Client
 from flearn.utils.model_utils import Metrics
 from flearn.utils.tf_utils import process_grad
 
-from sklearn.metrics import pairwise_distances
 
 class BaseFedarated(object):
-    def __init__(self, params, learner, dataset):
+    def __init__(self, hyper_params, Model, dataset):
         # transfer parameters to self
-        for key, val in params.items(): setattr(self, key, val);
+        for key, val in hyper_params.items(): setattr(self, key, val);
 
-        # create worker nodes
+        # create worker nodes (clients)
         tf.compat.v1.reset_default_graph()
-        self.client_model = learner(*params['model_params'], self.inner_opt, self.seed)
+        self.client_model = Model(*hyper_params['model_params'], self.inner_opt, self.seed)
         self.clients = self.setup_clients(dataset, self.client_model)
         print('{} Clients in Total'.format(len(self.clients)))
         self.latest_model = self.client_model.get_params()
 
         # initialize system metrics
-        self.metrics = Metrics(self.clients, params)
+        self.metrics = Metrics(self.clients, hyper_params)
         
         self.norm_diff = np.zeros((len(self.clients), len(self.clients)))
         self.norm_diff2 = np.zeros((len(self.clients), len(self.clients))) 
@@ -30,11 +30,11 @@ class BaseFedarated(object):
         self.client_model.close()
 
     def setup_clients(self, dataset, model=None):
-        '''instantiates clients based on given train and test data directories
+        """instantiates clients based on given train and test data directories
 
         Return:
             list of Clients
-        '''
+        """
         users, groups, train_data, test_data = dataset
         if len(groups) == 0:
             groups = [None for _ in users]
@@ -42,13 +42,13 @@ class BaseFedarated(object):
         return all_clients
 
 
-    def train_error_and_loss(self):
+    def train_metrics(self):
         num_samples = []
         tot_correct = []
         losses = []
 
         for c in self.clients:
-            ct, cl, ns = c.train_error_and_loss() 
+            ct, cl, ns = c.train_metrics() 
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
             losses.append(cl*1.0)
@@ -60,10 +60,10 @@ class BaseFedarated(object):
 
 
     def show_grads(self):  
-        '''
+        """
         Return:
             gradients on all workers and the global gradient
-        '''
+        """
 
         model_len = process_grad(self.latest_model).size
         global_grads = np.zeros(model_len)  
@@ -93,14 +93,14 @@ class BaseFedarated(object):
         return intermediate_grads
  
   
-    def test(self):
-        '''tests self.latest_model on given clients
-        '''
+    def test_metrics(self):
+        """tests self.latest_model on given clients
+        """
         num_samples = []
         tot_correct = []
         self.client_model.set_params(self.latest_model)
         for c in self.clients:
-            ct, ns = c.test()
+            ct, ns = c.test_metrics()
             tot_correct.append(ct*1.0)
             num_samples.append(ns)
         ids = [c.id for c in self.clients]
@@ -275,7 +275,7 @@ class BaseFedarated(object):
         return SUi
 
     def select_clients(self, round, num_clients=20):
-        '''selects num_clients clients weighted by number of samples from possible_clients
+        """selects num_clients clients weighted by number of samples from possible_clients
         
         Args:
             num_clients: number of clients to select; default 20
@@ -284,7 +284,7 @@ class BaseFedarated(object):
         
         Return:
             list of selected clients objects
-        '''
+        """
 
         num_clients = min(num_clients, len(self.clients))
         np.random.seed(round)  # make sure for each comparison, we are selecting the same clients each round

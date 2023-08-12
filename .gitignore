@@ -1,9 +1,9 @@
 # custom - start
-.DS_Store
-dump
-.ipynb_checkpoints/
-results
 .vscode
+.DS_Store
+.ipynb_checkpoints/
+dump
+results
 
 data/sent140/data/train
 data/sent140/data/test

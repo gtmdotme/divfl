@@ -1,0 +1,577 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 52 files
+Detected 6 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: divfl/flearn/models/sent140/stacked_lstm.py
+--------------------------------------------------------------------------------
+divfl/flearn/models/sent140/stacked_lstm.py:60:12: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+--------------------------------------------------------------------------------
+File: divfl/flearn/models/shakespeare/stacked_lstm.py
+--------------------------------------------------------------------------------
+divfl/flearn/models/shakespeare/stacked_lstm.py:53:20: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+divfl/flearn/models/shakespeare/stacked_lstm.py:54:12: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+--------------------------------------------------------------------------------
+File: divfl/flearn/trainers/fedavg.py
+--------------------------------------------------------------------------------
+divfl/flearn/trainers/fedavg.py:155:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+divfl/flearn/trainers/fedavg.py:156:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+divfl/flearn/trainers/fedavg.py:158:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: 'divfl/'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'divfl/main.py'
+ outputting to 'divfl_v2/main.py'
+--------------------------------------------------------------------------------
+
+110:4: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+141:4: INFO: Renamed 'tf.logging.set_verbosity' to 'tf.compat.v1.logging.set_verbosity'
+141:29: INFO: Renamed 'tf.logging.WARN' to 'tf.compat.v1.logging.WARN'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/model_utils.py'
+ outputting to 'divfl_v2/utils/model_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/language_utils.py'
+ outputting to 'divfl_v2/utils/language_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/remove_users.py'
+ outputting to 'divfl_v2/utils/remove_users.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/__init__.py'
+ outputting to 'divfl_v2/utils/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/utils.py'
+ outputting to 'divfl_v2/utils/utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/stats.py'
+ outputting to 'divfl_v2/utils/stats.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/sample.py'
+ outputting to 'divfl_v2/utils/sample.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/split_data.py'
+ outputting to 'divfl_v2/utils/split_data.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/utils/tf_utils.py'
+ outputting to 'divfl_v2/utils/tf_utils.py'
+--------------------------------------------------------------------------------
+
+33:13: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/optimizer/pggd.py'
+ outputting to 'divfl_v2/flearn/optimizer/pggd.py'
+--------------------------------------------------------------------------------
+
+47:23: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+59:23: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/optimizer/pgd.py'
+ outputting to 'divfl_v2/flearn/optimizer/pgd.py'
+--------------------------------------------------------------------------------
+
+61:23: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/utils/model_utils.py'
+ outputting to 'divfl_v2/flearn/utils/model_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/utils/language_utils.py'
+ outputting to 'divfl_v2/flearn/utils/language_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/utils/__init__.py'
+ outputting to 'divfl_v2/flearn/utils/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/utils/utils.py'
+ outputting to 'divfl_v2/flearn/utils/utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/utils/tf_utils.py'
+ outputting to 'divfl_v2/flearn/utils/tf_utils.py'
+--------------------------------------------------------------------------------
+
+35:13: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/client.py'
+ outputting to 'divfl_v2/flearn/models/client.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/__init__.py'
+ outputting to 'divfl_v2/flearn/models/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/mnist/mclr.py'
+ outputting to 'divfl_v2/flearn/models/mnist/mclr.py'
+--------------------------------------------------------------------------------
+
+23:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+25:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+26:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+31:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+32:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+33:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+34:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+38:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+39:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+40:17: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+40:93: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+45:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+45:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+49:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+50:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+56:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+62:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/mnist/__init__.py'
+ outputting to 'divfl_v2/flearn/models/mnist/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/sent140/stacked_lstm.py'
+ outputting to 'divfl_v2/flearn/models/sent140/stacked_lstm.py'
+--------------------------------------------------------------------------------
+
+42:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+44:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+45:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+50:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+51:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+52:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+53:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+56:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+57:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+60:12: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+64:21: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+65:14: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+66:26: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+68:15: INFO: tf.losses.sigmoid_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+68:15: INFO: Renamed 'tf.losses.sigmoid_cross_entropy' to 'tf.compat.v1.losses.sigmoid_cross_entropy'
+72:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+74:32: INFO: Changed tf.to_int64 call to tf.cast(..., dtype=tf.int64).
+75:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+82:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+88:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/sent140/get_embs.py'
+ outputting to 'divfl_v2/flearn/models/sent140/get_embs.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/nist/mclr.py'
+ outputting to 'divfl_v2/flearn/models/nist/mclr.py'
+--------------------------------------------------------------------------------
+
+23:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+25:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+26:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+31:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+32:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+33:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+34:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+38:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+39:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+40:17: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+40:93: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+45:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+45:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+49:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+50:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+56:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+62:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/nist/__init__.py'
+ outputting to 'divfl_v2/flearn/models/nist/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/nist/cnn.py'
+ outputting to 'divfl_v2/flearn/models/nist/cnn.py'
+--------------------------------------------------------------------------------
+
+18:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+20:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+21:17: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+23:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+28:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+29:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+30:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+31:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+35:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+36:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+38:16: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+44:16: INFO: Renamed 'tf.layers.max_pooling2d' to 'tf.compat.v1.layers.max_pooling2d'
+45:16: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+51:16: INFO: Renamed 'tf.layers.max_pooling2d' to 'tf.compat.v1.layers.max_pooling2d'
+54:16: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+56:17: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+61:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+61:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+64:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+65:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+73:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+79:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/shakespeare/stacked_lstm.py'
+ outputting to 'divfl_v2/flearn/models/shakespeare/stacked_lstm.py'
+--------------------------------------------------------------------------------
+
+37:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+39:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+40:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+45:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+47:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+48:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+49:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+52:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+53:20: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+53:20: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+54:12: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+55:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+59:21: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+60:15: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+62:30: INFO: Renamed 'tf.nn.softmax_cross_entropy_with_logits_v2' to 'tf.nn.softmax_cross_entropy_with_logits'
+66:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+70:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+78:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+84:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/celeba/__init__.py'
+ outputting to 'divfl_v2/flearn/models/celeba/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/celeba/cnn.py'
+ outputting to 'divfl_v2/flearn/models/celeba/cnn.py'
+--------------------------------------------------------------------------------
+
+22:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+25:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+27:17: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+29:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+34:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+35:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+36:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+37:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+40:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+43:18: INFO: Renamed 'tf.layers.conv2d' to 'tf.compat.v1.layers.conv2d'
+44:18: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+45:18: INFO: Renamed 'tf.layers.max_pooling2d' to 'tf.compat.v1.layers.max_pooling2d'
+48:17: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+49:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+50:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+50:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+57:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+58:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+67:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+73:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/synthetic/mclr.py'
+ outputting to 'divfl_v2/flearn/models/synthetic/mclr.py'
+--------------------------------------------------------------------------------
+
+22:12: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+24:25: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+25:20: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+30:26: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+31:23: INFO: Renamed 'tf.RunMetadata' to 'tf.compat.v1.RunMetadata'
+32:19: INFO: Renamed 'tf.profiler.ProfileOptionBuilder' to 'tf.compat.v1.profiler.ProfileOptionBuilder'
+33:25: INFO: Renamed 'tf.profiler.profile' to 'tf.compat.v1.profiler.profile'
+37:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+38:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+39:17: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+39:93: INFO: Multiplying scale arg of tf.contrib.layers.l2_regularizer by half to what tf.keras.regularizers.l2 expects.
+
+44:15: INFO: tf.losses.sparse_softmax_cross_entropy requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+44:15: INFO: Renamed 'tf.losses.sparse_softmax_cross_entropy' to 'tf.compat.v1.losses.sparse_softmax_cross_entropy'
+48:73: INFO: Renamed 'tf.train.get_global_step' to 'tf.compat.v1.train.get_global_step'
+49:26: INFO: Renamed 'tf.count_nonzero' to 'tf.math.count_nonzero'
+55:27: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+61:41: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/models/synthetic/__init__.py'
+ outputting to 'divfl_v2/flearn/models/synthetic/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/trainers/fedbase.py'
+ outputting to 'divfl_v2/flearn/trainers/fedbase.py'
+--------------------------------------------------------------------------------
+
+17:8: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/trainers/fedprox.py'
+ outputting to 'divfl_v2/flearn/trainers/fedprox.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/trainers/__init__.py'
+ outputting to 'divfl_v2/flearn/trainers/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/trainers/feddane.py'
+ outputting to 'divfl_v2/flearn/trainers/feddane.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/flearn/trainers/fedavg.py'
+ outputting to 'divfl_v2/flearn/trainers/fedavg.py'
+--------------------------------------------------------------------------------
+
+15:25: INFO: Renamed 'tf.train.GradientDescentOptimizer' to 'tf.compat.v1.train.GradientDescentOptimizer'
+155:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+156:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+158:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/mnist/generate_niid.py'
+ outputting to 'divfl_v2/data/mnist/generate_niid.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/synthetic_0.5_0.5/generate_synthetic.py'
+ outputting to 'divfl_v2/data/synthetic_0.5_0.5/generate_synthetic.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/sent140/preprocess/combine_data.py'
+ outputting to 'divfl_v2/data/sent140/preprocess/combine_data.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/sent140/preprocess/data_to_json.py'
+ outputting to 'divfl_v2/data/sent140/preprocess/data_to_json.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/synthetic_0_0/generate_synthetic.py'
+ outputting to 'divfl_v2/data/synthetic_0_0/generate_synthetic.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/preprocess/get_hashes.py'
+ outputting to 'divfl_v2/data/nist/preprocess/get_hashes.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/preprocess/match_hashes.py'
+ outputting to 'divfl_v2/data/nist/preprocess/match_hashes.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/preprocess/group_by_writer.py'
+ outputting to 'divfl_v2/data/nist/preprocess/group_by_writer.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/preprocess/get_file_dirs.py'
+ outputting to 'divfl_v2/data/nist/preprocess/get_file_dirs.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/preprocess/data_to_json.py'
+ outputting to 'divfl_v2/data/nist/preprocess/data_to_json.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/nist/data/my_sample.py'
+ outputting to 'divfl_v2/data/nist/data/my_sample.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/shakespeare/preprocess/preprocess_shakespeare.py'
+ outputting to 'divfl_v2/data/shakespeare/preprocess/preprocess_shakespeare.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/shakespeare/preprocess/shake_utils.py'
+ outputting to 'divfl_v2/data/shakespeare/preprocess/shake_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/shakespeare/preprocess/gen_all_data.py'
+ outputting to 'divfl_v2/data/shakespeare/preprocess/gen_all_data.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/synthetic_1_1/generate_synthetic.py'
+ outputting to 'divfl_v2/data/synthetic_1_1/generate_synthetic.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'divfl/data/synthetic_iid/generate_iid.py'
+ outputting to 'divfl_v2/data/synthetic_iid/generate_iid.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+

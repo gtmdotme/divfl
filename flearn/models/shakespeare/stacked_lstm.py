@@ -1,11 +1,9 @@
-import numpy as np
-from tqdm import trange
-import json
-
 import os
 import sys
+import json
+import numpy as np
+from tqdm import trange
 import tensorflow as tf
-
 # from tensorflow.contrib import rnn
 import tensorflow.compat.v1.nn.rnn_cell as rnn
 
@@ -86,11 +84,11 @@ class Model(object):
         return model_params
 
     def get_gradients(self, data, model_len):
-        '''in order to avoid the OOM error, we need to calculate the gradients on each 
+        """ in order to avoid the OOM error, we need to calculate the gradients on each 
         client batch by batch. batch size here is set to be 100.
 
         Return: a one-D array (after flattening all gradients)
-        '''
+        """
         grads = np.zeros(model_len)
         num_samples = len(data['y'])
 
@@ -131,8 +129,8 @@ class Model(object):
 
     #     return num_samples, grads
 
-    # def solve_inner(self, data, num_epochs=1, batch_size=32):
-    #     '''Solves local optimization problem'''
+    # def train_for_epochs(self, data, num_epochs=1, batch_size=32):
+    #     """Solves local optimization problem"""
 
     #     with self.graph.as_default():
     #         _, grads = self.get_gradients(data, 610) # Ignore the hardcoding, it's not used anywhere
@@ -142,18 +140,18 @@ class Model(object):
     #             with self.graph.as_default():
     #                 self.sess.run(self.train_op,
     #                     feed_dict={self.features: X, self.labels: y})
-    #     soln = self.get_params()
+    #     model_params = self.get_params()
     #     comp = num_epochs * (len(data['y'])//batch_size) * batch_size * self.flops
-    #     return soln, comp, grads
+    #     return model_params, comp, grads
     
-    def solve_inner(self, data, num_epochs=1, batch_size=32):
-        '''
+    def train_for_epochs(self, data, num_epochs=1, batch_size=32):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
         Return:
-            soln: trainable variables of the lstm model
+            model_params: trainable variables of the lstm model
             comp: number of FLOPs computed while training given data
-        '''
+        """
         with self.graph.as_default():
             _, grads = self.get_gradients(data, 817872) # Ignore the hardcoding, it's not used anywhere
 
@@ -164,30 +162,30 @@ class Model(object):
                 with self.graph.as_default():
                     self.sess.run(self.train_op,
                         feed_dict={self.features: input_data, self.labels: target_data})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = num_epochs * (len(data['y'])//batch_size) * batch_size * self.flops
-        return soln, comp, grads
+        return model_params, comp, grads
 
-    def solve_iters(self, data, num_iters=1, batch_size=32):
-        '''Solves local optimization problem'''
+    def train_for_iters(self, data, num_iters=1, batch_size=32):
+        """Solves local optimization problem"""
 
         for X, y in batch_data_multiple_iters(data, batch_size, num_iters):
             input_data = process_x(X)
             target_data = process_y(y)
             with self.graph.as_default():
                 self.sess.run(self.train_op, feed_dict={self.features: input_data, self.labels: target_data})
-        soln = self.get_params()
+        model_params = self.get_params()
         comp = 0
-        return soln, comp
+        return model_params, comp
     
-    def test(self, data):
-        '''
+    def evaluate(self, data):
+        """
         Args:
             data: dict of the form {'x': [list], 'y': [list]}
         Return:
             tot_correct: total #samples that are predicted correctly
             loss: loss value on `data`
-        '''
+        """
         x_vecs = process_x(data['x'])
         labels = process_y(data['y'])
         with self.graph.as_default():

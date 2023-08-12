@@ -1,6 +1,6 @@
-'''
+"""
 assumes that the user has already generated .json file(s) containing data
-'''
+"""
 
 import argparse
 import json

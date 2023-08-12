@@ -1,0 +1,77 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+- Blah blah blah...
+- porting from `tf.compact.v1` -> `tf2`
+- *args and **kwargs in `main.py`
+- decoupling dataset, clients, model from FederatedBase
+- TODO: docstrings in standard format
+- TODO: comments
+- dockerfile, conda, venv
+
+## [1.1.0] - 2023-08-12
+
+## Changed
+
+- Major refactoring of the code
+    - `''' docstring '''` -> `""" docstring """`
+    - added logger (.info, .debug) at a few places
+    - In `main.py`:
+        - learner -> Model
+        - optimizer -> Trainer
+        - params -> hyper_params
+        - options -> hyper_params
+        - read_options() -> read_inputs()
+    - In Model classes:
+        - solve_inner() -> train_for_epochs()
+        - solve_iters() -> train_for_iters()
+        - test() -> evaluate()
+        - soln -> model_params
+    - In `client.py`:
+        - solve_inner() -> train_for_epochs()
+        - solve_iters() -> train_for_iters()
+        - train_error_and_loss() -> train_metrics()
+        - test() -> test_metrics()
+        - eval_data -> test_data
+        - num_samples -> num_train_samples
+        - test_samples -> num_test_samples
+        - soln -> model_params
+    - In Trainer classes:
+        - train_error_and_loss() -> train_metrics()
+        - test() -> test_metrics()
+        - params -> hyper_params
+        - learner -> Model
+        - tqdm.write() -> print()
+    - In `*scripts.sh`:
+        - `--optimizer` -> `--trainer`
+- Added report for tf1->tf2 migration
+- Minor cosmetic changes
+
+## [1.0.2] - 2023-06-28
+
+### Changed
+
+- Documented setting up the conda environment
+- .gitignore updated and __pycache__ files removed
+- Minor decorative changes
+- Fixed issue of order of imports (put sklearn before tensorflow)
+
+## [1.0.1] - 2023-05-31
+
+### Changed
+
+- Migrated from tf1 to tf2
+- Resolved packages issues and added support for conda
+- Uploaded preprocessed data to onedrive
+- Minor issues resolved
+
+## [1.0.0] - 2023-05-25
+
+### Added
+
+- Forked from [DivFL](https://github.com/melodi-lab/divfl)

@@ -8,20 +8,20 @@ from flearn.utils.tf_utils import process_grad, process_sparse_grad
 
 
 class Server(BaseFedarated):
-    def __init__(self, params, learner, dataset):
+    def __init__(self, hyper_params, Model, dataset):
         print('Using Federated prox to Train')
-        self.inner_opt = PerturbedGradientDescent(params['learning_rate'], params['mu'])
-        super(Server, self).__init__(params, learner, dataset)
+        self.inner_opt = PerturbedGradientDescent(hyper_params['learning_rate'], hyper_params['mu'])
+        super(Server, self).__init__(hyper_params, Model, dataset)
 
     def train(self):
-        '''Train using Federated Proximal'''
+        """Train using Federated Proximal"""
         print('Training with {} workers ---'.format(self.clients_per_round))
 
         for i in range(self.num_rounds):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test() # have set the latest model for all clients
-                stats_train = self.train_error_and_loss()
+                stats = self.test_metrics() # have set the latest model for all clients
+                stats_train = self.train_metrics()
 
                 tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))  # testing accuracy
@@ -66,10 +66,10 @@ class Server(BaseFedarated):
 
                 # solve minimization locally
                 if c in active_clients:
-                    soln, stats, grads = c.solve_inner(num_epochs=self.num_epochs, batch_size=self.batch_size)
+                    soln, stats, grads = c.train_for_epochs(num_epochs=self.num_epochs, batch_size=self.batch_size)
                 else:
-                    #soln, stats = c.solve_iters(num_iters=np.random.randint(low=1, high=total_iters), batch_size=self.batch_size)
-                    soln, stats, grads = c.solve_inner(num_epochs=np.random.randint(low=1, high=self.num_epochs), batch_size=self.batch_size)
+                    #soln, stats = c.train_for_iters(num_iters=np.random.randint(low=1, high=total_iters), batch_size=self.batch_size)
+                    soln, stats, grads = c.train_for_epochs(num_epochs=np.random.randint(low=1, high=self.num_epochs), batch_size=self.batch_size)
 
                 # gather solutions from client
                 csolns.append(soln)
@@ -82,8 +82,8 @@ class Server(BaseFedarated):
             self.client_model.set_params(self.latest_model)
 
         # final test model
-        stats = self.test()
-        stats_train = self.train_error_and_loss()
+        stats = self.test_metrics()
+        stats_train = self.train_metrics()
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
         tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))

@@ -24,13 +24,14 @@ MAX_WRITERS = 100 # max number of writers per json file.
 
 
 def relabel_class(c):
-    '''
+    """
     maps hexadecimal class value (string) to a decimal number
-    returns:
+    
+    Return:
     - 0 through 9 for classes representing respective numbers
     - 10 through 35 for classes representing respective uppercase letters
     - 36 through 61 for classes representing respective lowercase letters
-    '''
+    """
     if c.isdigit() and int(c) < 40:
         return (int(c) - 30)
     elif int(c, 16) <= 90: # uppercase

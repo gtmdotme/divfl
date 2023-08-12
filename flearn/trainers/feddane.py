@@ -8,19 +8,19 @@ from flearn.utils.tf_utils import process_grad, process_sparse_grad
 
 
 class Server(BaseFedarated):
-    def __init__(self, params, learner, dataset):
+    def __init__(self, hyper_params, Model, dataset):
         print('Using Federated Dane to Train')
-        self.inner_opt = PerGodGradientDescent(params['learning_rate'], params['mu'])
-        super(Server, self).__init__(params, learner, dataset)
+        self.inner_opt = PerGodGradientDescent(hyper_params['learning_rate'], hyper_params['mu'])
+        super(Server, self).__init__(hyper_params, Model, dataset)
 
     def train(self):
-        '''Train using Federated Proximal'''
+        """Train using Federated Proximal"""
         print('Training with {} workers ---'.format(self.clients_per_round))
         for i in trange(self.num_rounds, desc='Round: ', ncols=120):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test() # have set the latest model for all clients
-                stats_train = self.train_error_and_loss()
+                stats = self.test_metrics() # have set the latest model for all clients
+                stats_train = self.train_metrics()
 
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))  # testing accuracy
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
@@ -55,7 +55,7 @@ class Server(BaseFedarated):
                 self.inner_opt.set_params(self.latest_model, avg_gradient, c)
 
                 # solve minimization locally
-                soln, stats = c.solve_inner(num_epochs=self.num_epochs, batch_size=self.batch_size)
+                soln, stats = c.train_for_epochs(num_epochs=self.num_epochs, batch_size=self.batch_size)
 
                 # gather solutions from client
                 csolns.append(soln)
@@ -64,7 +64,7 @@ class Server(BaseFedarated):
             self.latest_model = self.aggregate(csolns)
 
         # final test model
-        stats = self.test()
-        stats_train = self.train_error_and_loss()
+        stats = self.test_metrics()
+        stats_train = self.train_metrics()
         tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
         tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))

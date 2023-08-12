@@ -29,7 +29,7 @@ do
             for m in 5
             do
                 echo $L_aux
-                python -u main.py --dataset=$dataset --optimizer='fedavg'  \
+                python -u main.py --dataset=$dataset --trainer='fedavg'  \
                 --learning_rate=0.5 --num_rounds=200 --Ls0=$L_aux \
                 --eval_every=1 --batch_size=10 \
                 --num_epochs=$epoch \

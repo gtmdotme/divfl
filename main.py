@@ -1,17 +1,20 @@
-import numpy as np
+import os
 import argparse
 import importlib
 import random
-import os
+from loguru import logger
+
+import numpy as np
 import sklearn # load sklearn before TF, else error on scholar cluster
 import tensorflow as tf
+
 from flearn.utils.model_utils import read_data
+logger.info("modules imported")
 
 # GLOBAL PARAMETERS
-OPTIMIZERS = ['fedavg', 'fedprox', 'feddane', 'fedddane', 'fedsgd', 'fedprox_origin']
+TRAINERS = ['fedavg', 'fedprox', 'feddane', 'fedddane', 'fedsgd', 'fedprox_origin']
 DATASETS = ['celeba', 'sent140', 'nist', 'shakespeare', 'mnist', 
 'synthetic_iid', 'synthetic_0_0', 'synthetic_0.5_0.5', 'synthetic_1_1', 'synthetic_cluster']  # NIST is EMNIST in the paepr
-
 
 MODEL_PARAMS = {
     'sent140.bag_dnn': (2,), # num_classes
@@ -27,14 +30,14 @@ MODEL_PARAMS = {
 }
 
 
-def read_options():
-    ''' Parse command line arguments or load defaults '''
+def parse_inputs():
+    """ Parse command line arguments or load defaults """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--optimizer',
-                        help='name of optimizer;',
+    parser.add_argument('--trainer',
+                        help='name of trainer;',
                         type=str,
-                        choices=OPTIMIZERS,
+                        choices=TRAINERS,
                         default='fedavg')
     parser.add_argument('--dataset',
                         help='name of dataset;',
@@ -102,55 +105,59 @@ def read_options():
                         type=int,
                         default=1)
 
-    try: parsed = vars(parser.parse_args())
+    try: hyper_params = vars(parser.parse_args())
     except IOError as msg: parser.error(str(msg))
 
-    # Set seeds
-    random.seed(1 + parsed['seed'])
-    np.random.seed(12 + parsed['seed'])
-    tf.compat.v1.set_random_seed(123 + parsed['seed'])
-    # tf.random.set_seed(123 + parsed['seed'])
+    return hyper_params
 
-
-    # load selected model
-    if parsed['dataset'].startswith("synthetic"):  # all synthetic datasets use the same model
-        model_path = '%s.%s.%s.%s' % ('flearn', 'models', 'synthetic', parsed['model'])
-    else:
-        model_path = '%s.%s.%s.%s' % ('flearn', 'models', parsed['dataset'], parsed['model'])
-
-    mod = importlib.import_module(model_path)
-    learner = getattr(mod, 'Model')
-
-    # load selected trainer
-    opt_path = 'flearn.trainers.%s' % parsed['optimizer']
-    mod = importlib.import_module(opt_path)
-    optimizer = getattr(mod, 'Server')
-
-    # add selected model parameter
-    parsed['model_params'] = MODEL_PARAMS['.'.join(model_path.split('.')[2:])]
-
-    # print and return
-    maxLen = max([len(ii) for ii in parsed.keys()]);
-    fmtString = '\t%' + str(maxLen) + 's : %s';
-    print('Arguments:')
-    for keyPair in sorted(parsed.items()): print(fmtString % keyPair)
-
-    return parsed, learner, optimizer
 
 def main():
+    logger.info("main start")
+    
     # suppress tf warnings
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.WARN)
-    
+    logger.info("tf warnings suppressed")
+
     # parse command line arguments
-    options, learner, optimizer = read_options()
+    hyper_params = parse_inputs()
+    logger.info("inputs read")
 
     # read data
-    train_path = os.path.join('data', options['dataset'], 'data', 'train')
-    test_path = os.path.join('data', options['dataset'], 'data', 'test')
+    train_path = os.path.join('data', hyper_params['dataset'], 'data', 'train')
+    test_path = os.path.join('data', hyper_params['dataset'], 'data', 'test')
     dataset = read_data(train_path, test_path)
+    logger.info("data read")
 
-    # call appropriate trainer
-    t = optimizer(options, learner, dataset)
+    # Set seeds
+    random.seed(1 + hyper_params['seed'])
+    np.random.seed(12 + hyper_params['seed'])
+    tf.compat.v1.set_random_seed(123 + hyper_params['seed'])
+    # tf.random.set_seed(123 + hyper_params['seed'])
+
+    # dynamically import selected model
+    if hyper_params['dataset'].startswith("synthetic"):  # all synthetic datasets use the same model
+        model_path = '%s.%s.%s.%s' % ('flearn', 'models', 'synthetic', hyper_params['model'])
+    else:
+        model_path = '%s.%s.%s.%s' % ('flearn', 'models', hyper_params['dataset'], hyper_params['model'])
+    mod = importlib.import_module(model_path)
+    Model = getattr(mod, 'Model')
+    # add selected model parameter
+    hyper_params['model_params'] = MODEL_PARAMS['.'.join(model_path.split('.')[2:])]
+
+    # dynamically import selected trainer
+    opt_path = 'flearn.trainers.%s' % hyper_params['trainer']
+    mod = importlib.import_module(opt_path)
+    Trainer = getattr(mod, 'Server')
+
+    # print argument settings
+    maxLen = max([len(ii) for ii in hyper_params.keys()]);
+    fmtString = '\t%' + str(maxLen) + 's : %s';
+    print('Arguments:')
+    for keyPair in sorted(hyper_params.items()): print(fmtString % keyPair)
+
+    # run federated training
+    t = Trainer(hyper_params, Model, dataset)
+    logger.info("trainer created")
     t.train()
     
 if __name__ == '__main__':

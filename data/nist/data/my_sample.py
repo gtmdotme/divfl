@@ -14,13 +14,14 @@ CLASS_PER_USER = 3  # from 10 lowercase characters
 
 
 def relabel_class(c):
-    '''
+    """
     maps hexadecimal class value (string) to a decimal number
-    returns:
+    
+    Return:
     - 0 through 9 for classes representing respective numbers
     - 10 through 35 for classes representing respective uppercase letters
     - 36 through 61 for classes representing respective lowercase letters
-    '''
+    """
     if c.isdigit() and int(c) < 40:
         return (int(c) - 30)
     elif int(c, 16) <= 90: # uppercase
@@ -29,9 +30,11 @@ def relabel_class(c):
         return (int(c, 16) - 61) # lowercase
 
 def load_image(file_name):
-    '''read in a png
+    """
+    read in a png
+    
     Return: a flatted list representing the image
-    '''
+    """
     size = (28, 28)
     img = Image.open(file_name)
     gray = img.convert('L')

@@ -1,7 +1,7 @@
 
-'''
+"""
 removes users with less than the given number of samples
-'''
+"""
 
 import argparse
 import json
