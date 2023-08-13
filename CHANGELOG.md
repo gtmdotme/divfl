@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Blah blah blah...
-- porting from `tf.compact.v1` -> `tf2`
+- porting from `tf.compact.v1` &rarr; `tf2`
 - *args and **kwargs in `main.py`
 - decoupling dataset, clients, model from FederatedBase
 - TODO: docstrings in standard format
@@ -16,40 +16,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2023-08-12
 
-## Changed
+### Changed
 
 - Major refactoring of the code
-    - `''' docstring '''` -> `""" docstring """`
+    - `''' docstring '''` &rarr; `""" docstring """`
     - added logger (.info, .debug) at a few places
     - In `main.py`:
-        - learner -> Model
-        - optimizer -> Trainer
-        - params -> hyper_params
-        - options -> hyper_params
-        - read_options() -> read_inputs()
+        - learner &rarr; Model
+        - optimizer &rarr; Trainer
+        - params &rarr; hyper_params
+        - options &rarr; hyper_params
+        - read_options() &rarr; read_inputs()
     - In Model classes:
-        - solve_inner() -> train_for_epochs()
-        - solve_iters() -> train_for_iters()
-        - test() -> evaluate()
-        - soln -> model_params
+        - solve_inner() &rarr; train_for_epochs()
+        - solve_iters() &rarr; train_for_iters()
+        - test() &rarr; evaluate()
+        - soln &rarr; model_params
     - In `client.py`:
-        - solve_inner() -> train_for_epochs()
-        - solve_iters() -> train_for_iters()
-        - train_error_and_loss() -> train_metrics()
-        - test() -> test_metrics()
-        - eval_data -> test_data
-        - num_samples -> num_train_samples
-        - test_samples -> num_test_samples
-        - soln -> model_params
+        - solve_inner() &rarr; train_for_epochs()
+        - solve_iters() &rarr; train_for_iters()
+        - train_error_and_loss() &rarr; train_metrics()
+        - test() &rarr; test_metrics()
+        - eval_data &rarr; test_data
+        - num_samples &rarr; num_train_samples
+        - test_samples &rarr; num_test_samples
+        - soln &rarr; model_params
     - In Trainer classes:
-        - train_error_and_loss() -> train_metrics()
-        - test() -> test_metrics()
-        - params -> hyper_params
-        - learner -> Model
-        - tqdm.write() -> print()
+        - train_error_and_loss() &rarr; train_metrics()
+        - test() &rarr; test_metrics()
+        - params &rarr; hyper_params
+        - learner &rarr; Model
+        - tqdm.write() &rarr; print()
     - In `*scripts.sh`:
-        - `--optimizer` -> `--trainer`
-- Added report for tf1->tf2 migration
+        - `--optimizer` &rarr; `--trainer`
+- Added report for tf1&rarr;tf2 migration
 - Minor cosmetic changes
 
 ## [1.0.2] - 2023-06-28
