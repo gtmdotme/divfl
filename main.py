@@ -30,25 +30,25 @@ MODEL_PARAMS = {
 }
 
 
-def parse_inputs():
+def parse_inputs(*args):
     """ Parse command line arguments or load defaults """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Federated Learning.")
 
-    parser.add_argument('--trainer',
+    parser.add_argument('-t', '--trainer',
                         help='name of trainer;',
                         type=str,
                         choices=TRAINERS,
                         default='fedavg')
-    parser.add_argument('--dataset',
+    parser.add_argument('-d', '--dataset',
                         help='name of dataset;',
                         type=str,
                         choices=DATASETS,
                         default='nist')
-    parser.add_argument('--model',
+    parser.add_argument('-m', '--model',
                         help='name of model;',
                         type=str,
                         default='mclr')
-    parser.add_argument('--num_rounds',
+    parser.add_argument('-n', '--num_rounds',
                         help='number of rounds to simulate;',
                         type=int,
                         default=-1)
@@ -56,23 +56,23 @@ def parse_inputs():
                         help='evaluate every ____ rounds;',
                         type=int,
                         default=-1)
-    parser.add_argument('--clients_per_round',
+    parser.add_argument('-c', '--clients_per_round',
                         help='number of clients trained per round;',
                         type=int,
                         default=-1)
-    parser.add_argument('--batch_size',
+    parser.add_argument('-b', '--batch_size',
                         help='batch size when clients train on data;',
                         type=int,
                         default=10)
-    parser.add_argument('--num_epochs', 
+    parser.add_argument('-e', '--num_epochs', 
                         help='number of epochs when clients train on data;',
                         type=int,
                         default=1)
-    parser.add_argument('--num_iters',
+    parser.add_argument('-i', '--num_iters',
                         help='number of iterations when clients train on data;',
                         type=int,
                         default=1)
-    parser.add_argument('--learning_rate',
+    parser.add_argument('-l', '--learning_rate',
                         help='learning rate for inner solver;',
                         type=float,
                         default=0.003)
@@ -105,13 +105,13 @@ def parse_inputs():
                         type=int,
                         default=1)
 
-    try: hyper_params = vars(parser.parse_args())
+    try: hyper_params = vars(parser.parse_args(*args))
     except IOError as msg: parser.error(str(msg))
 
     return hyper_params
 
 
-def main():
+def main(*args):
     logger.info("main start")
     
     # suppress tf warnings
@@ -119,7 +119,7 @@ def main():
     logger.info("tf warnings suppressed")
 
     # parse command line arguments
-    hyper_params = parse_inputs()
+    hyper_params = parse_inputs(*args)
     logger.info("inputs read")
 
     # read data
