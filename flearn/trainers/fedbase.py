@@ -18,7 +18,7 @@ class BaseFedarated(object):
         self.client_model = Model(*hyper_params['model_params'], self.inner_opt, self.seed)
         self.clients = self.setup_clients(dataset, self.client_model)
         print('{} Clients in Total'.format(len(self.clients)))
-        self.latest_model = self.client_model.get_params()
+        self.latest_model_params = self.client_model.get_params()
 
         # initialize system metrics
         self.metrics = Metrics(self.clients, hyper_params)
@@ -41,40 +41,22 @@ class BaseFedarated(object):
         all_clients = [Client(u, g, train_data[u], test_data[u], model) for u, g in zip(users, groups)]
         return all_clients
 
-
-    def train_metrics(self):
-        num_samples = []
-        tot_correct = []
-        losses = []
-
-        for c in self.clients:
-            ct, cl, ns = c.train_metrics() 
-            tot_correct.append(ct*1.0)
-            num_samples.append(ns)
-            losses.append(cl*1.0)
-            
-        ids = [c.id for c in self.clients]
-        groups = [c.group for c in self.clients]
-
-        return ids, groups, num_samples, tot_correct, losses
-
-
     def show_grads(self):  
         """
         Return:
             gradients on all workers and the global gradient
         """
 
-        model_len = process_grad(self.latest_model).size
+        model_len = process_grad(self.latest_model_params).size
         global_grads = np.zeros(model_len)  
 
         cc = 0
         samples=[]
 
-        self.client_model.set_params(self.latest_model)
+        self.client_model.set_params(self.latest_model_params)
         for c in self.clients:
             num_samples, client_grads = c.get_grads(model_len) 
-            #num_samples, client_grads = c.get_grads(self.latest_model) 
+            #num_samples, client_grads = c.get_grads(self.latest_model_params) 
             samples.append(num_samples)
             # serial_cl_grads = process_grad(client_grads)
             if cc == 0:
@@ -91,21 +73,27 @@ class BaseFedarated(object):
         intermediate_grads[-1] = global_grads
 
         return intermediate_grads
- 
-  
-    def test_metrics(self):
-        """tests self.latest_model on given clients
+
+    def evaluate(self, mode):
+        """ evaluates all clients on latest_params and data
+            if mode='train', train_data is used else test_data is used
         """
         num_samples = []
         tot_correct = []
-        self.client_model.set_params(self.latest_model)
+        losses = []
+
+        # set the latest parameters on all client models
+        self.client_model.set_params(self.latest_model_params)
         for c in self.clients:
-            ct, ns = c.test_metrics()
+            ct, cl, ns = c.evaluate(mode) 
             tot_correct.append(ct*1.0)
+            losses.append(cl*1.0)
             num_samples.append(ns)
+        
         ids = [c.id for c in self.clients]
         groups = [c.group for c in self.clients]
-        return ids, groups, num_samples, tot_correct
+
+        return ids, groups, num_samples, tot_correct, losses
 
     def save(self):
         pass
@@ -332,4 +320,3 @@ class BaseFedarated(object):
         averaged_soln = [v / (total_weight*total_gamma) for v in base]
 
         return averaged_soln
-

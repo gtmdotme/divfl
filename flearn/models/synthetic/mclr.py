@@ -55,7 +55,6 @@ class Model(object):
                 all_vars = tf.compat.v1.trainable_variables()
                 for variable, value in zip(all_vars, model_params):
                     variable.load(value, self.sess)
-        logger.debug(f'set params in model: {self}')
 
     def get_params(self):
         """ get model parameters """

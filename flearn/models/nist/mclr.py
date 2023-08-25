@@ -56,7 +56,6 @@ class Model(object):
                 all_vars = tf.compat.v1.trainable_variables()
                 for variable, value in zip(all_vars, model_params):
                     variable.load(value, self.sess)
-        logger.debug('set params in model')
 
     def get_params(self):
         """ get model parameters """
@@ -84,7 +83,7 @@ class Model(object):
         with self.graph.as_default():
             _, grads = self.get_gradients(data, 610) # Ignore the hardcoding, it's not used anywhere
 
-        for _ in trange(num_epochs, desc='Epoch: ', leave=False, ncols=120):
+        for _ in range(num_epochs):
             for X, y in batch_data(data, batch_size):
                 with self.graph.as_default():
                     self.sess.run(self.train_op, feed_dict={self.features: X, self.labels: y})

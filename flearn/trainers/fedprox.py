@@ -20,8 +20,8 @@ class Server(BaseFedarated):
         for i in range(self.num_rounds):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test_metrics() # have set the latest model for all clients
-                stats_train = self.train_metrics()
+                stats = self.evaluate('test') # have set the latest model for all clients
+                stats_train = self.evaluate('train')
 
                 tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))  # testing accuracy
@@ -31,7 +31,7 @@ class Server(BaseFedarated):
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
                 tqdm.write('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 
-            model_len = process_grad(self.latest_model).size
+            model_len = process_grad(self.latest_model_params).size
             global_grads = np.zeros(model_len)
             client_grads = np.zeros(model_len)
             num_samples = []
@@ -56,11 +56,11 @@ class Server(BaseFedarated):
 
             csolns = [] # buffer for receiving client solutions
 
-            self.inner_opt.set_params(self.latest_model, self.client_model)
+            self.inner_opt.set_params(self.latest_model_params, self.client_model)
 
             for idx, c in enumerate(selected_clients.tolist()):
                 # communicate the latest model
-                c.set_params(self.latest_model)
+                c.set_params(self.latest_model_params)
 
                 total_iters = int(self.num_epochs * c.num_samples / self.batch_size)+2 # randint(low,high)=[low,high)
 
@@ -78,12 +78,12 @@ class Server(BaseFedarated):
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
             # update models
-            self.latest_model = self.aggregate(csolns)
-            self.client_model.set_params(self.latest_model)
+            self.latest_model_params = self.aggregate(csolns)
+            self.client_model.set_params(self.latest_model_params)
 
         # final test model
-        stats = self.test_metrics()
-        stats_train = self.train_metrics()
+        stats = self.evaluate('test')
+        stats_train = self.evaluate('train')
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
         tqdm.write('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))

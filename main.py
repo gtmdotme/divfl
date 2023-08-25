@@ -145,8 +145,8 @@ def main(*args):
     hyper_params['model_params'] = MODEL_PARAMS['.'.join(model_path.split('.')[2:])]
 
     # dynamically import selected trainer
-    opt_path = 'flearn.trainers.%s' % hyper_params['trainer']
-    mod = importlib.import_module(opt_path)
+    trainer_path = 'flearn.trainers.%s' % hyper_params['trainer']
+    mod = importlib.import_module(trainer_path)
     Trainer = getattr(mod, 'Server')
 
     # print argument settings

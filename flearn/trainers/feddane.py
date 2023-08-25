@@ -19,8 +19,8 @@ class Server(BaseFedarated):
         for i in trange(self.num_rounds, desc='Round: ', ncols=120):
             # test model
             if i % self.eval_every == 0:
-                stats = self.test_metrics() # have set the latest model for all clients
-                stats_train = self.train_metrics()
+                stats = self.evaluate('test') # have set the latest model for all clients
+                stats_train = self.evaluate('train')
 
                 tqdm.write('At round {} accuracy: {}'.format(i, np.sum(stats[3])*1.0/np.sum(stats[2])))  # testing accuracy
                 tqdm.write('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))
@@ -32,7 +32,7 @@ class Server(BaseFedarated):
             cgrads = [] # buffer for receiving client solutions
             for c in tqdm(selected_clients, desc='Grads: ', leave=False, ncols=120):
                 # communicate the latest model
-                c.set_params(self.latest_model)
+                c.set_params(self.latest_model_params)
 
                 # get the gradients
                 grad, stats = c.solve_grad()
@@ -49,10 +49,10 @@ class Server(BaseFedarated):
             csolns = [] # buffer for receiving client solutions
             for c in tqdm(selected_clients, desc='Solve: ', leave=False, ncols=120):
                 # communicate the latest model
-                c.set_params(self.latest_model)  # w_{t-1}
+                c.set_params(self.latest_model_params)  # w_{t-1}
 
                 # setup local optimizer
-                self.inner_opt.set_params(self.latest_model, avg_gradient, c)
+                self.inner_opt.set_params(self.latest_model_params, avg_gradient, c)
 
                 # solve minimization locally
                 soln, stats = c.train_for_epochs(num_epochs=self.num_epochs, batch_size=self.batch_size)
@@ -61,10 +61,10 @@ class Server(BaseFedarated):
                 csolns.append(soln)
         
             # update model
-            self.latest_model = self.aggregate(csolns)
+            self.latest_model_params = self.aggregate(csolns)
 
         # final test model
-        stats = self.test_metrics()
-        stats_train = self.train_metrics()
+        stats = self.evaluate('test')
+        stats_train = self.evaluate('train')
         tqdm.write('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3])*1.0/np.sum(stats[2])))
         tqdm.write('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3])*1.0/np.sum(stats_train[2])))

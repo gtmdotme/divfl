@@ -6,13 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Blah blah blah...
 - porting from `tf.compact.v1` &rarr; `tf2`
-- *args and **kwargs in `main.py`
 - decoupling dataset, clients, model from FederatedBase
 - TODO: docstrings in standard format
 - TODO: comments
 - dockerfile, conda, venv
+- abstract classes
+- power-of-choice not properly seeded
+
+## [1.1.1] - 2023-08-18
+
+### Changed
+
+- Refactoring code:
+    - self.latest_model &rarr; self.latest_model_params
+    - train_metrics() &rarr; evaluate(mode='train')
+    - test_metrics() &rarr; evaluate(mode='test')
+    - self.updatevec commented since not used anywhere
+- updated `Metrics` class to include more metrics
+- added more evaluation metrics
+- added comments
 
 ## [1.1.0] - 2023-08-12
 

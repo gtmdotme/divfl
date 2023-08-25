@@ -147,6 +147,7 @@ class Metrics(object):
         self.bytes_read = {c.id: [0] * num_rounds for c in clients}      
         self.accuracies = []
         self.train_accuracies = []
+        self.debug = {}
 
     def update(self, rnd, cid, stats):
         bytes_w, comp, bytes_r = stats
@@ -156,25 +157,21 @@ class Metrics(object):
 
     def write(self):
         metrics = {}
-        metrics['dataset'] = self.hyper_params['dataset']
-        metrics['num_rounds'] = self.hyper_params['num_rounds']
-        metrics['eval_every'] = self.hyper_params['eval_every']
-        metrics['learning_rate'] = self.hyper_params['learning_rate']
-        metrics['mu'] = self.hyper_params['mu']
-        metrics['num_epochs'] = self.hyper_params['num_epochs']
-        metrics['batch_size'] = self.hyper_params['batch_size']
+        for key, val in self.hyper_params.items(): metrics[key] = val;
         metrics['accuracies'] = self.accuracies
         metrics['train_accuracies'] = self.train_accuracies
         metrics['client_computations'] = self.client_computations
         metrics['bytes_written'] = self.bytes_written
         metrics['bytes_read'] = self.bytes_read
-        metrics_dir = os.path.join('out', self.hyper_params['dataset'], 'metrics_{}_{}_{}_{}_{}.json'.format(self.hyper_params['seed'], 
+        metrics['debug'] = self.debug
+        metrics_filename = os.path.join('results', self.hyper_params['dataset'], 'metrics_{}_{}_{}_{}_{}_{}.json'.format(self.hyper_params['clientsel_algo'], 
+                                                                                                       self.hyper_params['seed'], 
                                                                                                        self.hyper_params['trainer'], 
                                                                                                        self.hyper_params['learning_rate'], 
                                                                                                        self.hyper_params['num_epochs'], 
                                                                                                        self.hyper_params['mu']))
-	#os.mkdir(os.path.join('out', self.hyper_params['dataset']))
-        if not os.path.exists(os.path.join('out', self.hyper_params['dataset'])):
-            os.mkdir(os.path.join('out', self.hyper_params['dataset']))
-        with open(metrics_dir, 'w') as ouf:
-            json.dump(metrics, ouf)
+
+        print(f'Writing metrics to file: {metrics_filename}')
+        os.makedirs(os.path.join('results', self.hyper_params['dataset']), exist_ok=True)
+        with open(metrics_filename, 'w') as f:
+            json.dump(metrics, f)

@@ -22,42 +22,61 @@ class Server(BaseFedarated):
         """Train using Federated Proximal"""
         print('Training with {} workers ---'.format(self.clients_per_round))
 
+        # metrics
         test_accuracies = []
-        acc_10quant = []
-        acc_20quant = []
+        test_losses = []
+        test_per_client_accuracies = []
+        test_acc_10quant = []
+        test_acc_20quant = []
+        test_acc_mean = []
         test_acc_var = []
         train_accuracies = []
         train_losses = []
+        train_per_client_accuracies = []
         num_sampled = []
         client_sets_all = np.zeros([self.num_rounds, self.clients_per_round], dtype=int)
         diff_grad = np.zeros([self.num_rounds, len(self.clients)])
-        for i in range(self.num_rounds):
-            # get all client's model weights
-            allcl_models = []
-            for c in self.clients:
-                clmodel = c.get_params()
-                allcl_models.append(clmodel)
-            
-            # compute metrics on test data
+        
+        # training loop at server
+        for i in range(self.num_rounds):            
+            # compute metrics at start of each round
             if i % self.eval_every == 0:
-                stats = self.test_metrics()  # have set the latest model for all clients
-                stats_train = self.train_metrics()
+                stats = self.evaluate('test')
+                stats_train = self.evaluate('train')
                 
+                ## test metrics: `stats`
+                # accuracy := total correct over all clients / total samples over all clients
                 test_accuracies.append(np.sum(stats[3]) * 1.0 / np.sum(stats[2]))
-                acc_10quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1))
-                acc_20quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2))
+                # loss := loss of all clients weighted by their # of samples
+                test_losses.append(np.dot(stats[4], stats[2]) * 1.0 / np.sum(stats[2]))
+                # accuracy per client := list of accuracies of each client
+                test_per_client_accuracies.append([i/j for i,j in zip(stats[3], stats[2])])
+                # accuracy 10th quantile := 10th quantile of accuracy of all clients
+                test_acc_10quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1))
+                # accuracy 20th quantile := 20th quantile of accuracy of all clients
+                test_acc_20quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2))
+                # accuracy mean := mean of accuracy of all clients
+                test_acc_mean.append(np.mean([i/j for i,j in zip(stats[3], stats[2])]))
+                # accuracy variance := variance of accuracy of all clients
                 test_acc_var.append(np.var([i/j for i,j in zip(stats[3], stats[2])]))
+
+                ## train metrics: `stats_train`
                 train_accuracies.append(np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2]))
                 train_losses.append(np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2]))
+                train_per_client_accuracies.append([i/j for i,j in zip(stats_train[3], stats_train[2])])
 
-                print('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
-                print('At round {} accuracy: {}'.format(i, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))  # testing accuracy
-                print('At round {} acc. 10th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))  # testing accuracy variance
-                print('At round {} acc. 20th: {}'.format(i, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))  # testing accuracy variance
-                print('At round {} acc. variance: {}'.format(i, np.var([i/j for i,j in zip(stats[3], stats[2])])))  # testing accuracy variance
-                print('At round {} training accuracy: {}'.format(i, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
-                print('At round {} training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2])))
+                # print metrics
+                print('At round {} per-client-accuracy: {}'.format(i, test_per_client_accuracies[-1]))
+                print('At round {} accuracy: {}'.format(i, test_accuracies[-1]))
+                print('At round {} loss: {}'.format(i, test_losses[-1]))
+                print('At round {} acc. 10th quantile: {}'.format(i, test_acc_10quant[-1]))
+                print('At round {} acc. 20th quantile: {}'.format(i, test_acc_20quant[-1]))
+                print('At round {} acc. mean: {}'.format(i, test_acc_mean[-1]))
+                print('At round {} acc. variance: {}'.format(i, test_acc_var[-1]))
+                print('At round {} training accuracy: {}'.format(i, train_accuracies[-1]))
+                print('At round {} training loss: {}'.format(i, train_losses[-1]))
 
+            # client selection algo
             if self.clientsel_algo == 'submodular':
                 #if i % self.m_interval == 0: # Moved the condition inside the function
                 if i == 0 or self.clients_per_round == 1:  # at the first iteration or when m=1, collect gradients from all clients
@@ -73,11 +92,10 @@ class Server(BaseFedarated):
                 old_grad = all_grad.copy()
             elif self.clientsel_algo == 'lossbased':
                 print('Power of choice')
-                
                 if i % self.m_interval == 0:
                     lprob = stats_train[2]/np.sum(stats_train[2], axis=0)
                     #d=100
-                    subsample = 0.1
+                    # subsample = 0.1
                     #d = max(self.clients_per_round, int(subsample * len(self.clients)))
                     d = len(self.clients)
                     lvals = self.rng.choice(stats_train[4], size=d, replace = False, p=lprob)
@@ -100,24 +118,24 @@ class Server(BaseFedarated):
                 np.random.seed(i)
                 active_clients = np.random.choice(selected_clients, round(self.clients_per_round * (1-self.drop_percent)), replace=False)
                 
-            
             print('Client set is ', indices)
             client_sets_all[i] = indices
             print('At round {} num. clients sampled: {}'.format(i, len(indices)))
             num_sampled.append(len(indices))
             csolns = []  # buffer for receiving client solutions
             
-            glob_copy = np.append(self.latest_model[0].flatten(), self.latest_model[1])
+            # glob_copy = np.append(self.latest_model_params[0].flatten(), self.latest_model_params[1])
 
+            # iterate over all selected clients
             for idx, c in enumerate(active_clients.tolist()):  # simply drop the slow devices
-                # communicate the latest model
-                c.set_params(self.latest_model)
+                # step 1: send the latest model
+                c.set_params(self.latest_model_params)
 
-                # solve minimization locally
+                # step 2: local training on client
                 soln, stats, grads = c.train_for_epochs(num_epochs=self.num_epochs, batch_size=self.batch_size)
                 #print("Shape of grads", np.shape(grads))
                 
-                # gather solutions from client
+                # step 3: receive updated model from client
                 csolns.append(soln)
 
                 if self.clientsel_algo == 'submodular':
@@ -125,45 +143,79 @@ class Server(BaseFedarated):
                 
                 # Update server's view of clients' models (only for the selected clients)
                 #c.updatevec = (glob_copy - np.append(c.get_params()[0].flatten(), c.get_params()[1]))*0.01
-                c.updatevec = np.append(c.get_params()[0].flatten(), c.get_params()[1])
+                # c.updatevec = np.append(c.get_params()[0].flatten(), c.get_params()[1])
 
                 # track communication cost
                 self.metrics.update(rnd=i, cid=c.id, stats=stats)
 
-            # update models
+            # step 4: aggregate updated models
             if self.clientsel_algo == 'submodular':
                 self.norm_diff[indices] = pairwise_distances(self.all_grads[indices], self.all_grads, metric="euclidean")
                 self.norm_diff[:, indices] = self.norm_diff[indices].T
-                self.latest_model = self.aggregate(csolns)
-                #self.latest_model = self.aggregate_submod(csolns, gammas)
+                self.latest_model_params = self.aggregate(csolns)
+                #self.latest_model_params = self.aggregate_submod(csolns, gammas)
             elif self.clientsel_algo == 'lossbased':
-                self.latest_model = self.aggregate_simple(csolns)
+                self.latest_model_params = self.aggregate_simple(csolns)
             else:
-                self.latest_model = self.aggregate(csolns)
+                self.latest_model_params = self.aggregate(csolns)
                 
 
-        # final test model
-        stats = self.test_metrics()
-        stats_train = self.train_metrics()
+        # compute final metrics after last round
+        stats = self.evaluate('test')
+        stats_train = self.evaluate('train')
+        
+        ###### adapted from above ######
+        ## test metrics: `stats`
+        # accuracy := total correct over all clients / total samples over all clients
+        test_accuracies.append(np.sum(stats[3]) * 1.0 / np.sum(stats[2]))
+        # loss := loss of all clients weighted by their # of samples
+        test_losses.append(np.dot(stats[4], stats[2]) * 1.0 / np.sum(stats[2]))
+        # accuracy per client := list of accuracies of each client
+        test_per_client_accuracies.append([i/j for i,j in zip(stats[3], stats[2])])
+        # accuracy 10th quantile := 10th quantile of accuracy of all clients
+        test_acc_10quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1))
+        # accuracy 20th quantile := 20th quantile of accuracy of all clients
+        test_acc_20quant.append(np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2))
+        # accuracy mean := mean of accuracy of all clients
+        test_acc_mean.append(np.mean([i/j for i,j in zip(stats[3], stats[2])]))
+        # accuracy variance := variance of accuracy of all clients
+        test_acc_var.append(np.var([i/j for i,j in zip(stats[3], stats[2])]))
+
+        ## train metrics: `stats_train`
+        train_accuracies.append(np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2]))
+        train_losses.append(np.dot(stats_train[4], stats_train[2]) * 1.0 / np.sum(stats_train[2]))
+        train_per_client_accuracies.append([i/j for i,j in zip(stats_train[3], stats_train[2])])
+
+        # print metrics
+        print('At round {} per-client-accuracy: {}'.format(i, test_per_client_accuracies[-1]))
+        print('At round {} accuracy: {}'.format(i, test_accuracies[-1]))
+        print('At round {} loss: {}'.format(i, test_losses[-1]))
+        print('At round {} acc. 10th quantile: {}'.format(i, test_acc_10quant[-1]))
+        print('At round {} acc. 20th quantile: {}'.format(i, test_acc_20quant[-1]))
+        print('At round {} acc. mean: {}'.format(i, test_acc_mean[-1]))
+        print('At round {} acc. variance: {}'.format(i, test_acc_var[-1]))
+        print('At round {} training accuracy: {}'.format(i, train_accuracies[-1]))
+        print('At round {} training loss: {}'.format(i, train_losses[-1]))
+
+        #  save metrics
         self.metrics.accuracies.append(stats)
         self.metrics.train_accuracies.append(stats_train)
-        print('At round {} per-client-accuracy: {}'.format(i, [i/j for i,j in zip(stats[3], stats[2])]))
-        print('At round {} accuracy: {}'.format(self.num_rounds, np.sum(stats[3]) * 1.0 / np.sum(stats[2])))
-        print('At round {} acc. variance: {}'.format(self.num_rounds, np.var([i/j for i,j in zip(stats[3], stats[2])])))
-        print('At round {} acc. 10th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.1)))
-        print('At round {} acc. 20th: {}'.format(self.num_rounds, np.quantile([i/j for i,j in zip(stats[3], stats[2])], 0.2)))
-        print('At round {} training accuracy: {}'.format(self.num_rounds, np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])))
+        self.metrics.debug = {
+            'test_accuracies': test_accuracies,
+            'test_losses': test_losses,
+            'test_per_client_accuracies': test_per_client_accuracies,
+            'test_acc_10quant': test_acc_10quant,
+            'test_acc_20quant': test_acc_20quant,
+            'test_acc_mean': test_acc_mean,
+            'test_acc_var': test_acc_var,
+            'train_accuracies': train_accuracies,
+            'train_losses': train_losses,
+            'train_per_client_accuracies': train_per_client_accuracies,
+        }
+        self.metrics.write()
 
         if self.clientsel_algo == 'submodular':
             np.save(f'./results/{self.dataset}/psubmod_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
             np.save(f'./results/{self.dataset}/psubmod_client_diff_grad_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), diff_grad)
         elif self.clientsel_algo == 'lossbased':
             np.save(f'./results/{self.dataset}/powerofchoice_select_client_sets_all_%s_epoch%d_numclient%d_m%d.npy' % (self.clientsel_algo, self.num_epochs, self.clients_per_round, self.m_interval), client_sets_all)
-
-        print('Number of samples', stats_train[2])
-
-        save_dir = f"./results/{self.dataset}"
-        result_path = os.path.join(save_dir, f'{self.clientsel_algo}.csv')
-        print(f'Writing Statistics to file: {result_path}')
-        with open(result_path, 'wb') as f:
-            np.savetxt(f, np.c_[test_accuracies, train_accuracies, train_losses, num_sampled], delimiter=",")

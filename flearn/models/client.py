@@ -1,4 +1,5 @@
 import numpy as np
+from loguru import logger
 
 class Client(object):
     """
@@ -23,7 +24,7 @@ class Client(object):
 
         # model
         self.model = model
-        self.updatevec = np.append(model.get_params()[0].flatten(), model.get_params()[1])
+        # self.updatevec = np.append(model.get_params()[0].flatten(), model.get_params()[1])
 
     def set_params(self, model_params):
         """ set model parameters """
@@ -77,24 +78,25 @@ class Client(object):
         bytes_r = self.model.size
         return (self.num_train_samples, model_params), (bytes_w, comp, bytes_r)
 
-    def train_metrics(self):
-        """ evaluates current model on local train_data
+    def evaluate(self, mode):
+        """ evaluates current model on local data based on mode
+        if mode='train', train_data is used else test_data
         
         Return:
-            tot_correct: total #correct predictions
+            tot_correct: int: total #correct predictions
             loss: int: loss function value
             num_train_samples: int: number of training samples
         """
-        tot_correct, loss = self.model.evaluate(self.train_data)
-        return tot_correct, loss, self.num_train_samples
-
-
-    def test_metrics(self):
-        """ evaluates current model on local test_data
-
-        Return:
-            tot_correct: total #correct predictions
-            num_test_samples: int
-        """
-        tot_correct, loss = self.model.evaluate(self.test_data)
-        return tot_correct, self.num_test_samples
+        data = None
+        num_samples = None
+        if mode == 'train':
+            data = self.train_data
+            num_samples = self.num_train_samples
+        elif mode == 'test':
+            data = self.test_data
+            num_samples = self.num_test_samples
+        else:
+            logger.error(f"incorrect mode: {mode}")
+        
+        tot_correct, loss = self.model.evaluate(data)
+        return tot_correct, loss, num_samples
